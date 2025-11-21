@@ -1,0 +1,198 @@
+/* Método Comedia - Custom Styles */
+
+/* Tabs */
+.tab-btn {
+    position: relative;
+    color: #6B7280;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-btn:hover {
+    color: #EF4444;
+}
+
+.tab-btn.active {
+    color: #EF4444;
+    border-bottom-color: #EF4444;
+    background-color: #FEF2F2;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tab-content {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Joke Cards */
+.joke-card {
+    border-left: 4px solid #EF4444;
+    transition: all 0.3s ease;
+}
+
+.joke-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Status Badges */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-borrador {
+    background-color: #F3F4F6;
+    color: #374151;
+}
+
+.badge-revisado {
+    background-color: #DBEAFE;
+    color: #1E40AF;
+}
+
+.badge-probado {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+.badge-pulido {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
+
+/* Score Display */
+.score-bar {
+    height: 8px;
+    background-color: #E5E7EB;
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.score-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #EF4444, #F59E0B, #10B981);
+    transition: width 0.5s ease;
+}
+
+/* Loading Spinner */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Toast Notifications */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+#toast {
+    animation: slideIn 0.3s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .tab-btn {
+        font-size: 0.875rem;
+        padding: 0.75rem 1rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+}
+
+/* PWA Install Prompt */
+#installBtn {
+    transition: all 0.3s ease;
+}
+
+#installBtn:hover {
+    transform: scale(1.05);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #F3F4F6;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #EF4444;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #DC2626;
+}
+
+/* Analysis Section */
+.analysis-section {
+    border-left: 4px solid #3B82F6;
+    padding-left: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Idea Cards */
+.idea-card {
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    border-left: 4px solid #F59E0B;
+    transition: all 0.3s ease;
+}
+
+.idea-card:hover {
+    transform: translateX(4px);
+}
+
+/* Skeleton Loading */
+.skeleton {
+    background: linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}

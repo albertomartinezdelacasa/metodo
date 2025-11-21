@@ -1,0 +1,22 @@
+# Web Framework
+Flask==3.0.0
+Flask-CORS==4.0.0
+gunicorn==21.2.0
+
+# Environment Variables
+python-dotenv==1.0.1
+
+# Database
+supabase==2.10.0
+
+# IA (Google Gemini - FREE)
+google-generativeai==0.3.2
+
+# Todoist API
+requests==2.31.0
+
+# Utilities
+python-dateutil==2.8.2
+
+# Development
+pytest==7.4.3

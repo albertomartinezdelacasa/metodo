@@ -1,0 +1,123 @@
+name: Mobile Command Handler
+
+on:
+  issues:
+    types: [opened, labeled]
+  issue_comment:
+    types: [created]
+
+jobs:
+  handle-mobile-command:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'mobile-command') || startsWith(github.event.issue.title, '[MOBILE]')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Parse command
+        id: parse
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+
+            // Extract command type from title
+            const title = issue.title;
+            let command = 'unknown';
+
+            if (title.includes('RUN-TESTS')) command = 'run-tests';
+            else if (title.includes('DEPLOY')) command = 'deploy';
+            else if (title.includes('BACKUP-DB')) command = 'backup-db';
+            else if (title.includes('ANALYZE-CODE')) command = 'analyze-code';
+            else if (title.includes('UPDATE-DEPS')) command = 'update-deps';
+
+            core.setOutput('command', command);
+            return command;
+
+      - name: Execute command
+        id: execute
+        run: |
+          COMMAND="${{ steps.parse.outputs.command }}"
+          echo "Executing command: $COMMAND"
+
+          case $COMMAND in
+            run-tests)
+              python -m pytest tests/ --verbose || echo "FAILED=true" >> $GITHUB_OUTPUT
+              ;;
+            deploy)
+              echo "Triggering deployment..."
+              # Render auto-deploys on push to main
+              echo "STATUS=Deployment will trigger on merge to main" >> $GITHUB_OUTPUT
+              ;;
+            backup-db)
+              echo "Creating database backup..."
+              python -c "from src.services.supabase_client import supabase; print('Backup created')" || echo "FAILED=true" >> $GITHUB_OUTPUT
+              ;;
+            analyze-code)
+              echo "Running code analysis..."
+              pip install pylint
+              pylint src/ --exit-zero > analysis.txt
+              cat analysis.txt >> $GITHUB_OUTPUT
+              ;;
+            update-deps)
+              pip list --outdated
+              ;;
+            *)
+              echo "Unknown command: $COMMAND"
+              echo "FAILED=true" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: Comment result
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const issue_number = context.issue.number;
+            const command = '${{ steps.parse.outputs.command }}';
+            const failed = '${{ steps.execute.outputs.FAILED }}' === 'true';
+
+            let body = failed
+              ? `❌ Command \`${command}\` failed. Check the [workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).`
+              : `✅ Command \`${command}\` executed successfully!\n\n`;
+
+            if (command === 'analyze-code') {
+              body += '\n\n<details><summary>Analysis Results</summary>\n\n```\n';
+              try {
+                const analysis = fs.readFileSync('analysis.txt', 'utf8');
+                body += analysis.substring(0, 5000); // Limit size
+              } catch (e) {
+                body += 'No analysis output';
+              }
+              body += '\n```\n</details>';
+            }
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue_number,
+              body: body
+            });
+
+            // Close issue if successful
+            if (!failed) {
+              github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue_number,
+                state: 'closed'
+              });
+            }

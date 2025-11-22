@@ -59,6 +59,9 @@
                 <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap" data-tab="brainstorm">
                     💡 Ideas
                 </button>
+                <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap" data-tab="admin">
+                    ⚙️ Gestión
+                </button>
             </div>
         </div>
 
@@ -302,6 +305,134 @@
                 <div id="ideasResults" class="hidden mt-6">
                     <h3 class="font-bold text-lg mb-3">💡 Ideas Generadas</h3>
                     <div id="ideasContent" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Gestión (Admin Panel) -->
+        <div id="tab-admin" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-bold mb-4">⚙️ Panel de Gestión</h2>
+                <p class="text-gray-600 mb-6">Administra tu proyecto desde el móvil usando GitHub Issues</p>
+
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div class="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
+                        <h3 class="font-bold text-lg mb-2 flex items-center">
+                            🧪 Tests
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-3">Ejecutar suite de tests completa</p>
+                        <a href="https://github.com/albertomartinezdelacasa/metodo/issues/new?template=mobile-run-tests.yml"
+                           target="_blank"
+                           class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700">
+                            Ejecutar Tests →
+                        </a>
+                    </div>
+
+                    <div class="border-2 border-green-200 rounded-lg p-4 bg-green-50">
+                        <h3 class="font-bold text-lg mb-2 flex items-center">
+                            🚀 Deploy
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-3">Desplegar a Render.com</p>
+                        <a href="https://github.com/albertomartinezdelacasa/metodo/issues/new?template=mobile-deploy.yml"
+                           target="_blank"
+                           class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-700">
+                            Deploy →
+                        </a>
+                    </div>
+
+                    <div class="border-2 border-purple-200 rounded-lg p-4 bg-purple-50">
+                        <h3 class="font-bold text-lg mb-2 flex items-center">
+                            💾 Backup BD
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-3">Crear backup de Supabase</p>
+                        <a href="https://github.com/albertomartinezdelacasa/metodo/issues/new?template=mobile-backup-db.yml"
+                           target="_blank"
+                           class="inline-block bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-700">
+                            Backup →
+                        </a>
+                    </div>
+
+                    <div class="border-2 border-yellow-200 rounded-lg p-4 bg-yellow-50">
+                        <h3 class="font-bold text-lg mb-2 flex items-center">
+                            🔍 Análisis
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-3">Análisis de calidad de código</p>
+                        <a href="https://github.com/albertomartinezdelacasa/metodo/issues/new?template=mobile-analyze-code.yml"
+                           target="_blank"
+                           class="inline-block bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-700">
+                            Analizar →
+                        </a>
+                    </div>
+
+                    <div class="border-2 border-red-200 rounded-lg p-4 bg-red-50">
+                        <h3 class="font-bold text-lg mb-2 flex items-center">
+                            📦 Dependencias
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-3">Actualizar paquetes Python</p>
+                        <a href="https://github.com/albertomartinezdelacasa/metodo/issues/new?template=mobile-update-deps.yml"
+                           target="_blank"
+                           class="inline-block bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700">
+                            Actualizar →
+                        </a>
+                    </div>
+
+                    <div class="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
+                        <h3 class="font-bold text-lg mb-2 flex items-center">
+                            📊 Ver Issues
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-3">Ver comandos ejecutados</p>
+                        <a href="https://github.com/albertomartinezdelacasa/metodo/issues?q=label%3Amobile-command"
+                           target="_blank"
+                           class="inline-block bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-700">
+                            Ver Historial →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Database Stats -->
+                <div class="border-t pt-6">
+                    <h3 class="font-bold text-lg mb-4">📊 Estadísticas del Sistema</h3>
+                    <div id="systemStats" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <div class="text-2xl font-bold text-red-600" id="totalJokes">-</div>
+                            <div class="text-sm text-gray-600">Chistes</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <div class="text-2xl font-bold text-blue-600" id="totalAnalysis">-</div>
+                            <div class="text-sm text-gray-600">Análisis IA</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <div class="text-2xl font-bold text-green-600" id="avgRating">-</div>
+                            <div class="text-sm text-gray-600">Rating Prom.</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <div class="text-2xl font-bold text-purple-600" id="totalShows">-</div>
+                            <div class="text-sm text-gray-600">Shows</div>
+                        </div>
+                    </div>
+                    <button onclick="loadSystemStats()" class="mt-4 text-sm text-blue-600 hover:underline">
+                        🔄 Actualizar estadísticas
+                    </button>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="border-t pt-6 mt-6">
+                    <h3 class="font-bold text-lg mb-4">🔗 Enlaces Rápidos</h3>
+                    <div class="space-y-2">
+                        <a href="https://supabase.com/dashboard" target="_blank" class="block text-blue-600 hover:underline">
+                            → Panel de Supabase
+                        </a>
+                        <a href="https://dashboard.render.com" target="_blank" class="block text-blue-600 hover:underline">
+                            → Panel de Render
+                        </a>
+                        <a href="https://todoist.com/app/project/2362882414" target="_blank" class="block text-blue-600 hover:underline">
+                            → Proyecto Todoist
+                        </a>
+                        <a href="https://makersuite.google.com/app/apikey" target="_blank" class="block text-blue-600 hover:underline">
+                            → API Keys de Gemini
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

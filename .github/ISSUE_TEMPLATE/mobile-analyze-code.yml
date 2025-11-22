@@ -1,0 +1,31 @@
+name: 🔍 Analyze Code (Mobile)
+description: Run code quality analysis from mobile
+title: "[MOBILE] ANALYZE-CODE"
+labels: ["mobile-command", "code-quality"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Code Analysis
+        This will run pylint and other code quality tools.
+
+  - type: checkboxes
+    id: analysis-options
+    attributes:
+      label: Analysis Options
+      options:
+        - label: Check all Python files
+        - label: Include security scan
+        - label: Check dependencies for vulnerabilities
+
+  - type: dropdown
+    id: focus-area
+    attributes:
+      label: Focus Area (optional)
+      description: Specific area to analyze
+      options:
+        - All code
+        - Backend (src/)
+        - AI services
+        - Database layer
+      default: 0

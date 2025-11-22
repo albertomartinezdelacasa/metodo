@@ -14,6 +14,7 @@ Sistema de análisis y mejora de chistes de stand-up con Inteligencia Artificial
 - 📊 **Gestión**: Organiza chistes por estado (borrador → pulido)
 - 🎭 **Tracking**: Contador de usos y calificaciones
 - 📱 **PWA**: Instala en iPhone/Android como app nativa
+- 📲 **Gestión Móvil**: Administra tu proyecto desde el móvil (deploy, tests, backups)
 - 🔄 **Todoist Sync**: Sincroniza tareas (opcional)
 - 🌐 **Offline**: Funciona sin conexión gracias a Service Worker
 
@@ -87,6 +88,42 @@ Abre: http://localhost:5000
 ### Android
 1. Abre en Chrome
 2. Menú → **Instalar app** o **Añadir a pantalla inicio**
+
+---
+
+## 📲 Gestión Móvil
+
+**¡NUEVO!** Ahora puedes administrar tu proyecto completamente desde el móvil usando GitHub Mobile y la PWA.
+
+### ¿Qué puedes hacer desde el móvil?
+
+✅ **Gestión de Chistes** (PWA)
+- Crear, editar y analizar chistes
+- Ver mejoras sugeridas por IA
+- Gestionar bitácora
+
+✅ **Gestión Técnica** (GitHub Issues)
+- 🧪 Ejecutar tests automáticos
+- 🚀 Desplegar a producción
+- 💾 Crear backups de base de datos
+- 🔍 Analizar calidad de código
+- 📦 Actualizar dependencias
+- 📊 Ver estadísticas del sistema
+
+### Setup Rápido
+
+1. **Instala la PWA** (instrucciones arriba)
+
+2. **Configura gestión móvil:**
+   ```bash
+   python configure_mobile.py
+   ```
+
+3. **Instala GitHub Mobile** desde tu App Store
+
+4. **Listo!** Ve al tab "⚙️ Gestión" en la PWA
+
+📖 **Guía completa:** Ver [MOBILE_GUIDE.md](MOBILE_GUIDE.md) para instrucciones detalladas, workflows y troubleshooting.
 
 ---
 

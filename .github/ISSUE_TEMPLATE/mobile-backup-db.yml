@@ -1,0 +1,27 @@
+name: 💾 Backup Database (Mobile)
+description: Create database backup from mobile
+title: "[MOBILE] BACKUP-DB"
+labels: ["mobile-command", "database"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Database Backup
+        This will create a backup of the Supabase database.
+
+  - type: checkboxes
+    id: backup-options
+    attributes:
+      label: Backup Options
+      options:
+        - label: Include all tables
+          required: true
+        - label: Include file attachments
+        - label: Compress backup
+
+  - type: input
+    id: reason
+    attributes:
+      label: Backup Reason
+      description: Why are you creating this backup?
+      placeholder: "e.g., Before major migration"

@@ -1,0 +1,26 @@
+name: 📦 Update Dependencies (Mobile)
+description: Check for dependency updates from mobile
+title: "[MOBILE] UPDATE-DEPS"
+labels: ["mobile-command", "dependencies"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Update Dependencies
+        This will check for outdated Python packages.
+
+  - type: checkboxes
+    id: update-options
+    attributes:
+      label: Update Options
+      options:
+        - label: Check all dependencies
+        - label: Show security vulnerabilities
+        - label: Auto-update patch versions
+
+  - type: textarea
+    id: specific-packages
+    attributes:
+      label: Specific Packages (optional)
+      description: Leave blank to check all
+      placeholder: "e.g., flask, supabase, google-generativeai"

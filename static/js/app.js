@@ -813,6 +813,68 @@ function initFilters() {
 }
 
 // ====================
+// ADMIN PANEL
+// ====================
+
+async function loadSystemStats() {
+    try {
+        showLoading('Cargando estadísticas...');
+
+        // Get all jokes
+        const jokesResponse = await apiRequest('/api/jokes/');
+        const jokes = jokesResponse.data || [];
+
+        // Calculate stats
+        const totalJokes = jokes.filter(j => !j.eliminado).length;
+        const totalAnalysis = jokes.filter(j => j.analisis_ia && j.analisis_ia.length > 0).length;
+
+        const ratings = jokes
+            .filter(j => !j.eliminado && j.calificacion)
+            .map(j => j.calificacion);
+        const avgRating = ratings.length > 0
+            ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1)
+            : '0.0';
+
+        // Get presentations count (if endpoint exists)
+        let totalShows = 0;
+        try {
+            const showsResponse = await apiRequest('/api/presentaciones/');
+            totalShows = showsResponse.data?.length || 0;
+        } catch (e) {
+            console.log('Presentations endpoint not available');
+        }
+
+        // Update UI
+        document.getElementById('totalJokes').textContent = totalJokes;
+        document.getElementById('totalAnalysis').textContent = totalAnalysis;
+        document.getElementById('avgRating').textContent = avgRating;
+        document.getElementById('totalShows').textContent = totalShows;
+
+        hideLoading();
+        showToast('Estadísticas actualizadas');
+
+    } catch (error) {
+        console.error('Error loading stats:', error);
+        hideLoading();
+        showToast('Error al cargar estadísticas', 'error');
+    }
+}
+
+// Auto-load stats when admin tab is opened
+function initAdminPanel() {
+    const adminTab = document.querySelector('[data-tab="admin"]');
+    if (adminTab) {
+        adminTab.addEventListener('click', () => {
+            // Load stats only if not already loaded
+            const totalJokes = document.getElementById('totalJokes').textContent;
+            if (totalJokes === '-') {
+                loadSystemStats();
+            }
+        });
+    }
+}
+
+// ====================
 // INITIALIZATION
 // ====================
 
@@ -822,6 +884,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initBrainstorm();
     initFilters();
     initBitacora();
+    initAdminPanel();
 
     console.log('Método Comedia - App initialized ✨');
 });

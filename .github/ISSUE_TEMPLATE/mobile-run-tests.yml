@@ -1,0 +1,26 @@
+name: 🧪 Run Tests (Mobile)
+description: Execute test suite from mobile
+title: "[MOBILE] RUN-TESTS"
+labels: ["mobile-command", "tests"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Run Tests from Mobile
+        This will execute the full test suite and report results.
+
+  - type: checkboxes
+    id: test-options
+    attributes:
+      label: Test Options
+      options:
+        - label: Run all tests
+        - label: Include coverage report
+        - label: Verbose output
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      description: Any specific tests or concerns?
+      placeholder: "e.g., Focus on AI integration tests"

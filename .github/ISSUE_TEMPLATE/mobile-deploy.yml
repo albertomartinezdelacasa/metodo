@@ -1,0 +1,37 @@
+name: 🚀 Deploy to Render (Mobile)
+description: Trigger deployment from mobile
+title: "[MOBILE] DEPLOY"
+labels: ["mobile-command", "deployment"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Deploy to Render
+        This will trigger a deployment to Render.com
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: Select deployment environment
+      options:
+        - Production
+        - Staging (if available)
+      default: 0
+
+  - type: checkboxes
+    id: pre-deploy
+    attributes:
+      label: Pre-deployment Checks
+      options:
+        - label: All tests passing
+          required: true
+        - label: Database migrations ready
+        - label: Environment variables updated
+
+  - type: textarea
+    id: changes
+    attributes:
+      label: Changes in this deployment
+      description: Brief summary of changes
+      placeholder: "e.g., Added bitácora feature, fixed bug in AI analysis"

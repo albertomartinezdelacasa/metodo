@@ -29,7 +29,9 @@
       "Bash(gh auth:*)",
       "Bash(python run_sql_migration.py:*)",
       "Bash(mkdir:*)",
-      "Bash(python configure_mobile.py:*)"
+      "Bash(python configure_mobile.py:*)",
+      "Bash(git commit:*)",
+      "Bash(python check_deploy_ready.py:*)"
     ],
     "deny": [],
     "ask": []

@@ -538,6 +538,22 @@ function displayJokes(jokes) {
             </div>
 
             ${joke.notas ? `<p class="text-xs text-gray-500 mt-2 italic">${joke.notas}</p>` : ''}
+
+            <!-- Botones de Análisis -->
+            <div class="flex gap-2 mt-4 flex-wrap">
+                <button onclick="analyzeJokeById('${joke.id}')" class="btn-analyze-general px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600">
+                    🔍 Análisis General
+                </button>
+                <button onclick="analyzeConceptsById('${joke.id}')" class="btn-analyze-concepts px-3 py-1 bg-purple-500 text-white rounded text-sm hover:bg-purple-600">
+                    🧠 Conceptos
+                </button>
+                <button onclick="analyzeRuptureById('${joke.id}')" class="btn-analyze-rupture px-3 py-1 bg-pink-500 text-white rounded text-sm hover:bg-pink-600">
+                    💔 Ruptura
+                </button>
+                <button onclick="suggestImprovementsById('${joke.id}')" class="btn-suggestions px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600">
+                    ✨ Mejoras
+                </button>
+            </div>
         </div>
     `).join('');
 
@@ -562,6 +578,96 @@ function formatDate(dateString) {
         month: 'short',
         day: 'numeric'
     });
+}
+
+// ====================
+// ANÁLISIS POR ID (desde tarjetas)
+// ====================
+
+async function analyzeJokeById(jokeId) {
+    try {
+        showLoading('Obteniendo chiste...');
+
+        // Obtener el chiste de la base de datos
+        const joke = allJokes.find(j => j.id === jokeId);
+        if (!joke) {
+            showToast('Chiste no encontrado', 'error');
+            return;
+        }
+
+        // Analizar el chiste
+        await analyzeJoke(joke.contenido);
+
+        // Cambiar a la pestaña de escribir para ver resultados
+        document.querySelector('[data-tab="write"]').click();
+
+    } catch (error) {
+        showToast(error.message, 'error');
+        hideLoading();
+    }
+}
+
+async function analyzeConceptsById(jokeId) {
+    try {
+        showLoading('Analizando conceptos...');
+
+        const joke = allJokes.find(j => j.id === jokeId);
+        if (!joke) {
+            showToast('Chiste no encontrado', 'error');
+            return;
+        }
+
+        await analyzeConcepts(joke.contenido);
+
+        // Cambiar a la pestaña de escribir para ver resultados
+        document.querySelector('[data-tab="write"]').click();
+
+    } catch (error) {
+        showToast(error.message, 'error');
+        hideLoading();
+    }
+}
+
+async function analyzeRuptureById(jokeId) {
+    try {
+        showLoading('Analizando ruptura...');
+
+        const joke = allJokes.find(j => j.id === jokeId);
+        if (!joke) {
+            showToast('Chiste no encontrado', 'error');
+            return;
+        }
+
+        await analyzeRupture(joke.contenido);
+
+        // Cambiar a la pestaña de escribir para ver resultados
+        document.querySelector('[data-tab="write"]').click();
+
+    } catch (error) {
+        showToast(error.message, 'error');
+        hideLoading();
+    }
+}
+
+async function suggestImprovementsById(jokeId) {
+    try {
+        showLoading('Generando mejoras...');
+
+        const joke = allJokes.find(j => j.id === jokeId);
+        if (!joke) {
+            showToast('Chiste no encontrado', 'error');
+            return;
+        }
+
+        await suggestImprovements(joke.contenido);
+
+        // Cambiar a la pestaña de escribir para ver resultados
+        document.querySelector('[data-tab="write"]').click();
+
+    } catch (error) {
+        showToast(error.message, 'error');
+        hideLoading();
+    }
 }
 
 // ====================

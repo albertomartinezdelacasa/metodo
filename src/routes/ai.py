@@ -328,6 +328,9 @@ def analyze_rupture():
             joke_text = data['joke_text']
             joke_id = None
 
+        # Obtener realidad absurda si viene del usuario
+        realidad_absurda = data.get('realidad_absurda')
+
         # Analizar ruptura con IA
         rupture = ai_agent.analyze_rupture(joke_text)
 
@@ -336,20 +339,24 @@ def analyze_rupture():
             # Obtener el último análisis
             latest_analysis = analysis_repo.get_latest_analysis(joke_id)
 
+            update_data = {
+                'tipo_ruptura': rupture.get('tipo_ruptura'),
+                'subtipo_ruptura': rupture.get('subtipo_ruptura'),
+                'explicacion_ruptura': rupture.get('explicacion_ruptura')
+            }
+
+            # Agregar realidad_absurda si fue proporcionada
+            if realidad_absurda:
+                update_data['realidad_absurda'] = realidad_absurda
+
             if latest_analysis:
                 # Actualizar análisis existente con información de ruptura
-                analysis_repo.client.table('analisis_ia').update({
-                    'tipo_ruptura': rupture.get('tipo_ruptura'),
-                    'subtipo_ruptura': rupture.get('subtipo_ruptura'),
-                    'explicacion_ruptura': rupture.get('explicacion_ruptura')
-                }).eq('id', latest_analysis['id']).execute()
+                analysis_repo.client.table('analisis_ia').update(update_data).eq('id', latest_analysis['id']).execute()
             else:
                 # Crear nuevo análisis con solo información de ruptura
                 analysis_data = {
                     'chiste_id': joke_id,
-                    'tipo_ruptura': rupture.get('tipo_ruptura'),
-                    'subtipo_ruptura': rupture.get('subtipo_ruptura'),
-                    'explicacion_ruptura': rupture.get('explicacion_ruptura')
+                    **update_data
                 }
                 analysis_repo.create_analysis(analysis_data)
 

@@ -409,15 +409,19 @@ async function analyzeRupture(jokeText) {
     try {
         showLoading('Analizando ruptura...');
 
+        // Capturar realidad absurda del input
+        const realidadAbsurda = document.getElementById('realidadAbsurda')?.value.trim() || null;
+
         const result = await apiRequest('/api/ai/analyze-rupture', {
             method: 'POST',
             body: JSON.stringify({
                 joke_text: jokeText,
+                realidad_absurda: realidadAbsurda,
                 save: false
             })
         });
 
-        displayRuptureAnalysis(result.data);
+        displayRuptureAnalysis(result.data, realidadAbsurda);
         showToast('¡Análisis de ruptura completado!');
 
     } catch (error) {
@@ -427,13 +431,20 @@ async function analyzeRupture(jokeText) {
     }
 }
 
-function displayRuptureAnalysis(rupture) {
+function displayRuptureAnalysis(rupture, realidadAbsurda = null) {
     const container = document.getElementById('analysisContent');
     const resultsDiv = document.getElementById('analysisResults');
 
     const html = `
         <div class="space-y-4">
             <h4 class="font-bold text-lg">💥 Análisis de Ruptura</h4>
+
+            ${realidadAbsurda ? `
+                <div class="p-4 bg-indigo-50 rounded-lg border-l-4 border-indigo-500">
+                    <h5 class="font-semibold mb-2">🌀 Realidad Absurda</h5>
+                    <p class="text-sm">${realidadAbsurda}</p>
+                </div>
+            ` : ''}
 
             <div class="p-4 bg-red-50 rounded-lg border-l-4 border-red-500">
                 <h5 class="font-semibold mb-2">Tipo de Ruptura</h5>
@@ -638,10 +649,18 @@ async function analyzeRuptureById(jokeId) {
             return;
         }
 
-        await analyzeRupture(joke.contenido);
-
-        // Cambiar a la pestaña de escribir para ver resultados
+        // Cambiar a la pestaña de escribir primero
         document.querySelector('[data-tab="write"]').click();
+
+        // Esperar un momento para que el tab se active
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Cargar contenido en el formulario para que el usuario pueda agregar realidad absurda si quiere
+        document.getElementById('jokeContent').value = joke.contenido;
+        if (joke.titulo) document.getElementById('jokeTitle').value = joke.titulo;
+
+        // Hacer el análisis
+        await analyzeRupture(joke.contenido);
 
     } catch (error) {
         showToast(error.message, 'error');

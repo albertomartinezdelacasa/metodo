@@ -25,16 +25,134 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/static/css/style.css">
+
+    <style>
+        /* Modern Glassmorphism Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Smooth transitions */
+        .smooth-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Gradient backgrounds */
+        .gradient-blue {
+            background: linear-gradient(135deg, #1E40AF 0%, #4F46E5 100%);
+        }
+
+        .gradient-orange {
+            background: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
+        }
+
+        .gradient-green {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+        }
+
+        /* Wizard steps */
+        .wizard-step {
+            display: none;
+        }
+
+        .wizard-step.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Line input container */
+        .line-input-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .line-input-group input {
+            flex: 1;
+        }
+
+        /* Remove button */
+        .btn-remove {
+            min-width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #EF4444;
+            color: white;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.2s;
+        }
+
+        .btn-remove:hover {
+            background: #DC2626;
+            transform: scale(1.1);
+        }
+
+        /* Add line button */
+        .btn-add-line {
+            width: 100%;
+            padding: 12px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px dashed #3B82F6;
+            color: #3B82F6;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-add-line:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            height: 4px;
+            background: #E5E7EB;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1E40AF 0%, #4F46E5 100%);
+            transition: width 0.3s ease;
+        }
+
+        /* Card hover effect */
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
 
     <!-- Header -->
-    <header class="bg-gradient-to-r from-blue-800 to-indigo-700 text-white shadow-lg">
+    <header class="gradient-blue text-white shadow-lg sticky top-0 z-40">
         <div class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">🎤 Método Comedia</h1>
-                    <p class="text-blue-100 text-sm mt-1">Analiza y mejora tus chistes con IA</p>
+                    <p class="text-blue-100 text-sm mt-1">Analiza y mejora con IA</p>
                 </div>
                 <div class="flex gap-2">
                     <button id="installBtn" class="hidden bg-white text-blue-800 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-blue-50 transition">
@@ -52,56 +170,96 @@
     <main class="container mx-auto px-4 py-6 max-w-6xl">
 
         <!-- Tabs -->
-        <div class="bg-white rounded-lg shadow-md mb-6">
+        <div class="glass rounded-2xl shadow-xl mb-6">
             <div class="flex border-b overflow-x-auto">
-                <button class="tab-btn active px-6 py-3 font-semibold whitespace-nowrap" data-tab="analisis">
+                <button class="tab-btn active px-6 py-3 font-semibold whitespace-nowrap smooth-transition" data-tab="analisis">
                     🔍 Análisis
                 </button>
-                <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap" data-tab="write">
+                <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap smooth-transition" data-tab="biblioteca">
+                    📚 Biblioteca
+                </button>
+                <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap smooth-transition" data-tab="write">
                     ✍️ Mis Chistes
                 </button>
-                <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap" data-tab="bitacora">
+                <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap smooth-transition" data-tab="bitacora">
                     📔 Bitácora
                 </button>
-                <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap" data-tab="brainstorm">
+                <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap smooth-transition" data-tab="brainstorm">
                     💡 Ideas
                 </button>
-                <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap" data-tab="admin">
+                <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap smooth-transition" data-tab="admin">
                     ⚙️ Gestión
                 </button>
             </div>
         </div>
 
-        <!-- Tab: Análisis de Chistes -->
+        <!-- Tab: Análisis de Chistes (Wizard) -->
         <div id="tab-analisis" class="tab-content">
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold mb-6 text-blue-800">🔍 Análisis de Chistes</h2>
-                <p class="text-gray-600 mb-6">Estudia y analiza chistes de otros comediantes para mejorar tu técnica</p>
+            <div class="glass rounded-2xl shadow-xl p-6">
+                <h2 class="text-3xl font-bold mb-2 text-blue-800">🔍 Análisis de Chistes</h2>
+                <p class="text-gray-600 mb-6">Estudia chistes de otros comediantes paso a paso</p>
 
-                <form id="analisisForm" class="space-y-6">
-                    <!-- Identificación -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-semibold mb-2">Título / Referencia</label>
-                            <input type="text" id="analisisTitulo"
-                                class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Ej: Chiste del restaurante">
+                <!-- Progress Bar -->
+                <div class="mb-6">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-sm font-semibold text-gray-600" id="stepLabel">Paso 1: Identificación</span>
+                        <span class="text-sm font-semibold text-gray-600" id="stepProgress">1/6</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 16.66%"></div>
+                    </div>
+                </div>
+
+                <form id="analisisWizardForm">
+                    <!-- Step 1: Identificación -->
+                    <div class="wizard-step active" data-step="1">
+                        <div class="text-center mb-6">
+                            <div class="text-6xl mb-4">🎭</div>
+                            <h3 class="text-2xl font-bold mb-2">Identificación del Chiste</h3>
+                            <p class="text-gray-600">¿De quién es este chiste?</p>
                         </div>
-                        <div>
-                            <label class="block text-sm font-semibold mb-2">Comediante</label>
-                            <input type="text" id="analisisComediante"
-                                class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Ej: George Carlin">
+
+                        <div class="space-y-4 max-w-xl mx-auto">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Título / Referencia *</label>
+                                <input type="text" id="analisisTitulo"
+                                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Ej: Chiste del restaurante" required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Comediante *</label>
+                                <input type="text" id="analisisComediante"
+                                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Ej: George Carlin" required>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end mt-6">
+                            <button type="button" class="btn-primary" onclick="nextStep()">
+                                Siguiente →
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Premisa -->
-                    <div class="premisa-section p-4 rounded-lg">
-                        <h3 class="text-lg font-bold mb-3 text-blue-800">📋 Premisa</h3>
-                        <div class="space-y-3">
-                            <textarea id="analisisPremisa" rows="4"
-                                class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                placeholder="Escribe cada línea de la premisa (setup del chiste)..." required></textarea>
+                    <!-- Step 2: Premisa -->
+                    <div class="wizard-step" data-step="2">
+                        <div class="text-center mb-6">
+                            <div class="text-6xl mb-4">📋</div>
+                            <h3 class="text-2xl font-bold mb-2 text-blue-800">Premisa (Setup)</h3>
+                            <p class="text-gray-600">Escribe cada línea de la premisa por separado</p>
+                        </div>
+
+                        <div class="max-w-2xl mx-auto space-y-4">
+                            <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+                                <h4 class="font-bold mb-4 text-blue-800">Líneas de la Premisa</h4>
+                                <div id="premisaLinesContainer">
+                                    <!-- Dynamic lines will be added here -->
+                                </div>
+                                <button type="button" class="btn-add-line mt-3" onclick="addPremisaLine()">
+                                    + Añadir línea
+                                </button>
+                            </div>
 
                             <div>
                                 <label class="block text-sm font-semibold mb-2">Elemento Mecánico</label>
@@ -112,162 +270,242 @@
                                 <p class="text-xs text-gray-500 mt-1">¿Qué elemento específico hace funcionar la premisa?</p>
                             </div>
                         </div>
+
+                        <div class="flex justify-between mt-6">
+                            <button type="button" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold" onclick="prevStep()">
+                                ← Atrás
+                            </button>
+                            <button type="button" class="btn-primary" onclick="nextStep()">
+                                Siguiente →
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Ruptura -->
-                    <div class="ruptura-section p-4 rounded-lg">
-                        <h3 class="text-lg font-bold mb-3 text-orange-600">💥 Ruptura</h3>
-                        <textarea id="analisisRuptura" rows="4"
-                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-orange-500"
-                            placeholder="Escribe cada línea donde ocurre la ruptura de expectativa..." required></textarea>
-                        <p class="text-xs text-gray-500 mt-1">El momento donde se rompe la expectativa creada</p>
-                    </div>
+                    <!-- Step 3: Ruptura -->
+                    <div class="wizard-step" data-step="3">
+                        <div class="text-center mb-6">
+                            <div class="text-6xl mb-4">💥</div>
+                            <h3 class="text-2xl font-bold mb-2 text-orange-600">Ruptura</h3>
+                            <p class="text-gray-600">El momento donde se rompe la expectativa</p>
+                        </div>
 
-                    <!-- Remate -->
-                    <div class="remate-section p-4 rounded-lg">
-                        <h3 class="text-lg font-bold mb-3 text-emerald-600">🎯 Remate</h3>
-                        <textarea id="analisisRemate" rows="4"
-                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                            placeholder="Escribe cada línea del remate final (punchline)..." required></textarea>
-                        <p class="text-xs text-gray-500 mt-1">El cierre que genera la risa</p>
-                    </div>
-
-                    <!-- Perspectiva -->
-                    <div class="perspectiva-section p-4 rounded-lg">
-                        <h3 class="text-lg font-bold mb-3 text-indigo-700">👁️ Perspectiva</h3>
-                        <div class="space-y-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-semibold mb-2">Categoría de Perspectiva</label>
-                                    <select id="analisisPerspectivaCategoria"
-                                        class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-indigo-500 dropdown-editable">
-                                        <option value="">Seleccionar...</option>
-                                    </select>
+                        <div class="max-w-2xl mx-auto">
+                            <div class="bg-orange-50 border-2 border-orange-200 rounded-xl p-6">
+                                <h4 class="font-bold mb-4 text-orange-800">Líneas de la Ruptura</h4>
+                                <div id="rupturaLinesContainer">
+                                    <!-- Dynamic lines will be added here -->
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-semibold mb-2">Actitud</label>
-                                    <select id="analisisActitud"
-                                        class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-indigo-500 dropdown-editable">
-                                        <option value="">Seleccionar...</option>
-                                    </select>
+                                <button type="button" class="btn-add-line mt-3" onclick="addRupturaLine()">
+                                    + Añadir línea
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between mt-6">
+                            <button type="button" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold" onclick="prevStep()">
+                                ← Atrás
+                            </button>
+                            <button type="button" class="btn-primary" onclick="nextStep()">
+                                Siguiente →
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Remate -->
+                    <div class="wizard-step" data-step="4">
+                        <div class="text-center mb-6">
+                            <div class="text-6xl mb-4">🎯</div>
+                            <h3 class="text-2xl font-bold mb-2 text-emerald-600">Remate (Punchline)</h3>
+                            <p class="text-gray-600">El cierre que genera la risa</p>
+                        </div>
+
+                        <div class="max-w-2xl mx-auto">
+                            <div class="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-6">
+                                <h4 class="font-bold mb-4 text-emerald-800">Líneas del Remate</h4>
+                                <div id="remateLinesContainer">
+                                    <!-- Dynamic lines will be added here -->
                                 </div>
+                                <button type="button" class="btn-add-line mt-3" onclick="addRemateLine()">
+                                    + Añadir línea
+                                </button>
                             </div>
+                        </div>
 
-                            <div>
-                                <label class="block text-sm font-semibold mb-2">Justificación de Perspectiva</label>
-                                <textarea id="analisisPerspectivaJustificacion" rows="2"
-                                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                                    placeholder="¿Por qué esta perspectiva funciona?"></textarea>
-                            </div>
+                        <div class="flex justify-between mt-6">
+                            <button type="button" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold" onclick="prevStep()">
+                                ← Atrás
+                            </button>
+                            <button type="button" class="btn-primary" onclick="nextStep()">
+                                Siguiente →
+                            </button>
+                        </div>
+                    </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Step 5: Perspectiva y Concepto -->
+                    <div class="wizard-step" data-step="5">
+                        <div class="text-center mb-6">
+                            <div class="text-6xl mb-4">👁️</div>
+                            <h3 class="text-2xl font-bold mb-2 text-indigo-700">Perspectiva y Concepto</h3>
+                            <p class="text-gray-600">El punto de vista y la idea central</p>
+                        </div>
+
+                        <div class="max-w-2xl mx-auto space-y-6">
+                            <div class="bg-indigo-50 border-2 border-indigo-200 rounded-xl p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold mb-2">Categoría de Perspectiva</label>
+                                        <select id="analisisPerspectivaCategoria"
+                                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-indigo-500 dropdown-editable">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold mb-2">Actitud</label>
+                                        <select id="analisisActitud"
+                                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-indigo-500 dropdown-editable">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <div>
-                                    <label class="block text-sm font-semibold mb-2">Concepto Principal</label>
-                                    <input type="text" id="analisisConcepto"
+                                    <label class="block text-sm font-semibold mb-2">Justificación de Perspectiva</label>
+                                    <textarea id="analisisPerspectivaJustificacion" rows="2"
                                         class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                                        placeholder="Ej: Incomodidad social">
+                                        placeholder="¿Por qué esta perspectiva funciona?"></textarea>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-semibold mb-2">Categoría de Concepto</label>
-                                    <select id="analisisConceptoCategoria"
-                                        class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-indigo-500 dropdown-editable">
-                                        <option value="">Seleccionar...</option>
-                                    </select>
+                            </div>
+
+                            <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6">
+                                <h4 class="font-bold mb-4 text-purple-800">Concepto</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold mb-2">Concepto Principal</label>
+                                        <input type="text" id="analisisConcepto"
+                                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                            placeholder="Ej: Incomodidad social">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold mb-2">Categoría de Concepto</label>
+                                        <select id="analisisConceptoCategoria"
+                                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-purple-500 dropdown-editable">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Desarrollo de la Idea -->
-                    <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
-                        <h3 class="text-lg font-bold mb-3">🗺️ Desarrollo de la Idea (Mind Map)</h3>
-                        <textarea id="analisisDesarrolloIdea" rows="5"
-                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-yellow-500"
-                            placeholder="Describe cómo se desarrolló esta idea. ¿Qué proceso creativo siguió el comediante? ¿Cómo conecta los conceptos?"></textarea>
-                        <p class="text-xs text-gray-500 mt-1">El proceso creativo detrás del chiste</p>
-                    </div>
-
-                    <!-- Formulación -->
-                    <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-400">
-                        <h3 class="text-lg font-bold mb-3 text-purple-700">📝 Formulación</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-sm font-semibold mb-2">Categoría de Formulación</label>
-                                <select id="analisisFormulacionCategoria"
-                                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-purple-500 dropdown-editable">
-                                    <option value="">Seleccionar...</option>
-                                </select>
-                                <p class="text-xs text-gray-500 mt-1">¿Cómo está construido el chiste? (directa, pregunta, historia, etc.)</p>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold mb-2">Justificación de Formulación</label>
-                                <textarea id="analisisFormulacionJustificacion" rows="2"
-                                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-purple-500"
-                                    placeholder="¿Por qué esta formulación es efectiva?"></textarea>
-                            </div>
+                        <div class="flex justify-between mt-6">
+                            <button type="button" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold" onclick="prevStep()">
+                                ← Atrás
+                            </button>
+                            <button type="button" class="btn-primary" onclick="nextStep()">
+                                Siguiente →
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Notas -->
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">Notas Adicionales</label>
-                        <textarea id="analisisNotas" rows="3"
-                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-400"
-                            placeholder="Observaciones, aprendizajes, ideas derivadas..."></textarea>
-                    </div>
+                    <!-- Step 6: Formulación y Notas -->
+                    <div class="wizard-step" data-step="6">
+                        <div class="text-center mb-6">
+                            <div class="text-6xl mb-4">📝</div>
+                            <h3 class="text-2xl font-bold mb-2 text-purple-700">Formulación y Notas</h3>
+                            <p class="text-gray-600">Detalles finales del análisis</p>
+                        </div>
 
-                    <!-- Botones -->
-                    <div class="flex gap-3">
-                        <button type="submit" class="btn-primary flex-1">
-                            💾 Guardar Análisis
-                        </button>
-                        <button type="button" id="btnLimpiarAnalisis" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold">
-                            🗑️ Limpiar
-                        </button>
+                        <div class="max-w-2xl mx-auto space-y-6">
+                            <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6">
+                                <h4 class="font-bold mb-4 text-yellow-800">🗺️ Desarrollo de la Idea</h4>
+                                <textarea id="analisisDesarrolloIdea" rows="4"
+                                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-yellow-500"
+                                    placeholder="Describe el proceso creativo. ¿Cómo conecta los conceptos?"></textarea>
+                            </div>
+
+                            <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6">
+                                <h4 class="font-bold mb-4 text-purple-800">📝 Formulación</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-semibold mb-2">Categoría de Formulación</label>
+                                        <select id="analisisFormulacionCategoria"
+                                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-purple-500 dropdown-editable">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
+                                        <p class="text-xs text-gray-500 mt-1">¿Cómo está construido? (directa, pregunta, historia, etc.)</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold mb-2">Justificación</label>
+                                        <textarea id="analisisFormulacionJustificacion" rows="2"
+                                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                            placeholder="¿Por qué esta formulación es efectiva?"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Notas Adicionales</label>
+                                <textarea id="analisisNotas" rows="3"
+                                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-400"
+                                    placeholder="Observaciones, aprendizajes, ideas derivadas..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between mt-6">
+                            <button type="button" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold" onclick="prevStep()">
+                                ← Atrás
+                            </button>
+                            <button type="submit" class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 shadow-lg">
+                                💾 Guardar Análisis
+                            </button>
+                        </div>
                     </div>
                 </form>
+            </div>
+        </div>
 
-                <!-- Tabla de Análisis Guardados -->
-                <div class="mt-10">
-                    <h3 class="text-xl font-bold mb-4">📊 Análisis Guardados</h3>
-
-                    <!-- Filtros -->
-                    <div class="mb-4 flex flex-wrap gap-3">
-                        <input type="text" id="filterComediante" placeholder="Filtrar por comediante"
-                            class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <select id="filterConcepto" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="">Todos los conceptos</option>
-                        </select>
-                        <button id="btnReloadAnalisis" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                            🔄 Recargar
-                        </button>
+        <!-- Tab: Biblioteca -->
+        <div id="tab-biblioteca" class="tab-content hidden">
+            <div class="glass rounded-2xl shadow-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-blue-800">📚 Biblioteca</h2>
+                        <p class="text-gray-600 mt-1">Todos tus análisis guardados</p>
                     </div>
+                    <button onclick="loadBiblioteca()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-semibold">
+                        🔄 Recargar
+                    </button>
+                </div>
 
-                    <!-- Tabla -->
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead>
-                                <tr>
-                                    <th>Referencia</th>
-                                    <th>Comediante</th>
-                                    <th>Concepto</th>
-                                    <th>Perspectiva</th>
-                                    <th>Fecha</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="analisisTableBody">
-                                <!-- Dinámico -->
-                            </tbody>
-                        </table>
-                    </div>
+                <!-- Filters -->
+                <div class="mb-6 flex flex-wrap gap-3">
+                    <input type="text" id="filterBibliotecaComediante" placeholder="Buscar por comediante"
+                        class="px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="filterBibliotecaTitulo" placeholder="Buscar por título"
+                        class="px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <select id="filterBibliotecaConcepto" class="px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Todos los conceptos</option>
+                    </select>
+                    <button onclick="applyBibliotecaFilters()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                        🔍 Filtrar
+                    </button>
+                </div>
+
+                <!-- Biblioteca Grid -->
+                <div id="bibliotecaGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Dynamic cards will be added here -->
+                </div>
+
+                <div id="bibliotecaEmpty" class="hidden text-center py-12">
+                    <div class="text-6xl mb-4">📚</div>
+                    <p class="text-gray-500 text-lg">No hay análisis guardados aún</p>
+                    <p class="text-gray-400 text-sm mt-2">Ve a la pestaña "Análisis" para crear tu primer análisis</p>
                 </div>
             </div>
         </div>
 
-        <!-- Tab: Mis Chistes (antes "Escribir") -->
+        <!-- Tab: Mis Chistes -->
         <div id="tab-write" class="tab-content hidden">
-            <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="glass rounded-2xl shadow-xl p-6">
                 <h2 class="text-2xl font-bold mb-4">Mis Chistes</h2>
 
                 <form id="jokeForm" class="space-y-4">
@@ -373,40 +611,12 @@
             </div>
         </div>
 
-        <!-- Tab: Lista de Chistes -->
-        <div id="tab-list" class="tab-content hidden">
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold">Mis Chistes</h2>
-                    <button id="refreshBtn" class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300">
-                        🔄 Actualizar
-                    </button>
-                </div>
-
-                <!-- Filters -->
-                <div class="flex gap-3 mb-4 flex-wrap">
-                    <select id="filterStatus" class="px-4 py-2 border rounded-lg">
-                        <option value="">Todos los estados</option>
-                        <option value="borrador">Borrador</option>
-                        <option value="revisado">Revisado</option>
-                        <option value="probado">Probado</option>
-                        <option value="pulido">Pulido</option>
-                    </select>
-                </div>
-
-                <!-- Jokes List -->
-                <div id="jokesList" class="space-y-4">
-                    <p class="text-gray-500 text-center py-8">Cargando chistes...</p>
-                </div>
-            </div>
-        </div>
-
         <!-- Tab: Bitácora -->
         <div id="tab-bitacora" class="tab-content hidden">
-            <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="glass rounded-2xl shadow-xl p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold">📔 Bitácora</h2>
-                    <button id="newEntryBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 font-semibold">
+                    <button id="newEntryBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-semibold">
                         ➕ Nueva Entrada
                     </button>
                 </div>
@@ -444,7 +654,7 @@
                         </div>
 
                         <div class="flex gap-2">
-                            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 font-semibold">
+                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-semibold">
                                 Guardar
                             </button>
                             <button type="button" id="cancelEntryBtn" class="bg-gray-300 px-4 py-2 rounded-lg hover:bg-gray-400">
@@ -475,7 +685,7 @@
 
         <!-- Tab: Brainstorm -->
         <div id="tab-brainstorm" class="tab-content hidden">
-            <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="glass rounded-2xl shadow-xl p-6">
                 <h2 class="text-2xl font-bold mb-4">💡 Generar Ideas</h2>
 
                 <form id="brainstormForm" class="space-y-4">
@@ -496,7 +706,7 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700">
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">
                         🚀 Generar Ideas
                     </button>
                 </form>
@@ -511,13 +721,13 @@
 
         <!-- Tab: Gestión (Admin Panel) -->
         <div id="tab-admin" class="tab-content hidden">
-            <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="glass rounded-2xl shadow-xl p-6">
                 <h2 class="text-2xl font-bold mb-4">⚙️ Panel de Gestión</h2>
                 <p class="text-gray-600 mb-6">Administra tu proyecto desde el móvil usando GitHub Issues</p>
 
                 <!-- Quick Actions -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                    <div class="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
+                    <div class="border-2 border-blue-200 rounded-lg p-4 bg-blue-50 card-hover">
                         <h3 class="font-bold text-lg mb-2 flex items-center">
                             🧪 Tests
                         </h3>
@@ -529,7 +739,7 @@
                         </a>
                     </div>
 
-                    <div class="border-2 border-green-200 rounded-lg p-4 bg-green-50">
+                    <div class="border-2 border-green-200 rounded-lg p-4 bg-green-50 card-hover">
                         <h3 class="font-bold text-lg mb-2 flex items-center">
                             🚀 Deploy
                         </h3>
@@ -541,7 +751,7 @@
                         </a>
                     </div>
 
-                    <div class="border-2 border-purple-200 rounded-lg p-4 bg-purple-50">
+                    <div class="border-2 border-purple-200 rounded-lg p-4 bg-purple-50 card-hover">
                         <h3 class="font-bold text-lg mb-2 flex items-center">
                             💾 Backup BD
                         </h3>
@@ -553,7 +763,7 @@
                         </a>
                     </div>
 
-                    <div class="border-2 border-yellow-200 rounded-lg p-4 bg-yellow-50">
+                    <div class="border-2 border-yellow-200 rounded-lg p-4 bg-yellow-50 card-hover">
                         <h3 class="font-bold text-lg mb-2 flex items-center">
                             🔍 Análisis
                         </h3>
@@ -565,7 +775,7 @@
                         </a>
                     </div>
 
-                    <div class="border-2 border-red-200 rounded-lg p-4 bg-red-50">
+                    <div class="border-2 border-red-200 rounded-lg p-4 bg-red-50 card-hover">
                         <h3 class="font-bold text-lg mb-2 flex items-center">
                             📦 Dependencias
                         </h3>
@@ -577,7 +787,7 @@
                         </a>
                     </div>
 
-                    <div class="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <div class="border-2 border-gray-200 rounded-lg p-4 bg-gray-50 card-hover">
                         <h3 class="font-bold text-lg mb-2 flex items-center">
                             📊 Ver Issues
                         </h3>
@@ -642,7 +852,7 @@
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-3"></div>
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-3"></div>
             <p class="text-gray-700 font-semibold" id="loadingText">Procesando...</p>
         </div>
     </div>

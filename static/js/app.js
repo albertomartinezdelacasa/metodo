@@ -5,6 +5,10 @@ const API_URL = window.location.origin;
 // Estado de la aplicación
 let currentJoke = null;
 let allJokes = [];
+let currentStep = 1;
+let premisaLines = [];
+let rupturaLines = [];
+let remateLines = [];
 
 // ====================
 // UTILIDADES
@@ -76,13 +80,728 @@ function initTabs() {
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
 
             // Load data if needed
-            if (tabName === 'list') {
-                loadJokes();
+            if (tabName === 'analisis') {
+                initAnalisisWizard();
+            } else if (tabName === 'biblioteca') {
+                loadBiblioteca();
             } else if (tabName === 'bitacora') {
                 loadBitacoraEntries();
+            } else if (tabName === 'admin') {
+                const totalJokes = document.getElementById('totalJokes').textContent;
+                if (totalJokes === '-') {
+                    loadSystemStats();
+                }
             }
         });
     });
+}
+
+// ====================
+// WIZARD NAVIGATION
+// ====================
+
+const stepLabels = [
+    'Identificación',
+    'Premisa',
+    'Ruptura',
+    'Remate',
+    'Perspectiva y Concepto',
+    'Formulación y Notas'
+];
+
+function updateWizardProgress() {
+    const progress = (currentStep / 6) * 100;
+    document.getElementById('progressFill').style.width = `${progress}%`;
+    document.getElementById('stepLabel').textContent = `Paso ${currentStep}: ${stepLabels[currentStep - 1]}`;
+    document.getElementById('stepProgress').textContent = `${currentStep}/6`;
+}
+
+function nextStep() {
+    // Validar paso actual antes de avanzar
+    if (!validateCurrentStep()) {
+        return;
+    }
+
+    if (currentStep < 6) {
+        // Hide current step
+        document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.remove('active');
+
+        currentStep++;
+
+        // Show next step
+        document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('active');
+
+        updateWizardProgress();
+
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        // Hide current step
+        document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.remove('active');
+
+        currentStep--;
+
+        // Show previous step
+        document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('active');
+
+        updateWizardProgress();
+
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function validateCurrentStep() {
+    let isValid = true;
+    let errorMessage = '';
+
+    switch (currentStep) {
+        case 1: // Identificación
+            const titulo = document.getElementById('analisisTitulo').value.trim();
+            const comediante = document.getElementById('analisisComediante').value.trim();
+            if (!titulo || !comediante) {
+                errorMessage = 'Por favor completa el título y el comediante';
+                isValid = false;
+            }
+            break;
+        case 2: // Premisa
+            if (premisaLines.length === 0 || premisaLines.every(line => !line.trim())) {
+                errorMessage = 'Por favor añade al menos una línea de premisa';
+                isValid = false;
+            }
+            break;
+        case 3: // Ruptura
+            if (rupturaLines.length === 0 || rupturaLines.every(line => !line.trim())) {
+                errorMessage = 'Por favor añade al menos una línea de ruptura';
+                isValid = false;
+            }
+            break;
+        case 4: // Remate
+            if (remateLines.length === 0 || remateLines.every(line => !line.trim())) {
+                errorMessage = 'Por favor añade al menos una línea de remate';
+                isValid = false;
+            }
+            break;
+    }
+
+    if (!isValid) {
+        showToast(errorMessage, 'error');
+    }
+
+    return isValid;
+}
+
+// ====================
+// DYNAMIC LINE INPUTS
+// ====================
+
+function addPremisaLine(value = '') {
+    const container = document.getElementById('premisaLinesContainer');
+    const index = premisaLines.length;
+    premisaLines.push(value);
+
+    const lineDiv = document.createElement('div');
+    lineDiv.className = 'line-input-group';
+    lineDiv.dataset.index = index;
+    lineDiv.innerHTML = `
+        <input type="text"
+            class="px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500"
+            placeholder="Línea ${index + 1} de la premisa..."
+            value="${value}"
+            data-line-type="premisa"
+            data-line-index="${index}">
+        <button type="button" class="btn-remove" onclick="removePremisaLine(${index})" title="Eliminar línea">
+            ×
+        </button>
+    `;
+
+    container.appendChild(lineDiv);
+
+    // Add event listener to update array
+    const input = lineDiv.querySelector('input');
+    input.addEventListener('input', (e) => {
+        premisaLines[index] = e.target.value;
+    });
+}
+
+function removePremisaLine(index) {
+    const container = document.getElementById('premisaLinesContainer');
+    const lineDiv = container.querySelector(`[data-index="${index}"]`);
+    if (lineDiv) {
+        lineDiv.remove();
+        premisaLines[index] = null; // Mark as deleted
+    }
+}
+
+function addRupturaLine(value = '') {
+    const container = document.getElementById('rupturaLinesContainer');
+    const index = rupturaLines.length;
+    rupturaLines.push(value);
+
+    const lineDiv = document.createElement('div');
+    lineDiv.className = 'line-input-group';
+    lineDiv.dataset.index = index;
+    lineDiv.innerHTML = `
+        <input type="text"
+            class="px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-orange-500"
+            placeholder="Línea ${index + 1} de la ruptura..."
+            value="${value}"
+            data-line-type="ruptura"
+            data-line-index="${index}">
+        <button type="button" class="btn-remove" onclick="removeRupturaLine(${index})" title="Eliminar línea">
+            ×
+        </button>
+    `;
+
+    container.appendChild(lineDiv);
+
+    // Add event listener to update array
+    const input = lineDiv.querySelector('input');
+    input.addEventListener('input', (e) => {
+        rupturaLines[index] = e.target.value;
+    });
+}
+
+function removeRupturaLine(index) {
+    const container = document.getElementById('rupturaLinesContainer');
+    const lineDiv = container.querySelector(`[data-index="${index}"]`);
+    if (lineDiv) {
+        lineDiv.remove();
+        rupturaLines[index] = null; // Mark as deleted
+    }
+}
+
+function addRemateLine(value = '') {
+    const container = document.getElementById('remateLinesContainer');
+    const index = remateLines.length;
+    remateLines.push(value);
+
+    const lineDiv = document.createElement('div');
+    lineDiv.className = 'line-input-group';
+    lineDiv.dataset.index = index;
+    lineDiv.innerHTML = `
+        <input type="text"
+            class="px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-emerald-500"
+            placeholder="Línea ${index + 1} del remate..."
+            value="${value}"
+            data-line-type="remate"
+            data-line-index="${index}">
+        <button type="button" class="btn-remove" onclick="removeRemateLine(${index})" title="Eliminar línea">
+            ×
+        </button>
+    `;
+
+    container.appendChild(lineDiv);
+
+    // Add event listener to update array
+    const input = lineDiv.querySelector('input');
+    input.addEventListener('input', (e) => {
+        remateLines[index] = e.target.value;
+    });
+}
+
+function removeRemateLine(index) {
+    const container = document.getElementById('remateLinesContainer');
+    const lineDiv = container.querySelector(`[data-index="${index}"]`);
+    if (lineDiv) {
+        lineDiv.remove();
+        remateLines[index] = null; // Mark as deleted
+    }
+}
+
+function initAnalisisWizard() {
+    // Reset wizard state
+    currentStep = 1;
+    premisaLines = [];
+    rupturaLines = [];
+    remateLines = [];
+
+    // Clear containers
+    document.getElementById('premisaLinesContainer').innerHTML = '';
+    document.getElementById('rupturaLinesContainer').innerHTML = '';
+    document.getElementById('remateLinesContainer').innerHTML = '';
+
+    // Add initial lines
+    addPremisaLine();
+    addRupturaLine();
+    addRemateLine();
+
+    // Reset progress
+    updateWizardProgress();
+
+    // Show first step
+    document.querySelectorAll('.wizard-step').forEach(step => step.classList.remove('active'));
+    document.querySelector('.wizard-step[data-step="1"]').classList.add('active');
+
+    // Load categories if needed
+    if (categorias.perspectiva.length === 0) {
+        loadCategorias();
+    }
+}
+
+// ====================
+// ANÁLISIS DE CHISTES
+// ====================
+
+let categorias = {
+    perspectiva: [],
+    actitud: [],
+    concepto: [],
+    formulacion: [],
+    elemento_mecanico: []
+};
+let currentAnalisisId = null;
+let allAnalisis = [];
+
+// Cargar todas las categorías al iniciar
+async function loadCategorias() {
+    try {
+        const response = await apiRequest('/api/categorias/all');
+        if (response.success) {
+            categorias = response.data;
+            populateAllDropdowns();
+        }
+    } catch (error) {
+        console.error('Error loading categorías:', error);
+    }
+}
+
+// Poblar todos los dropdowns
+function populateAllDropdowns() {
+    populateDropdown('analisisElementoMecanico', categorias.elemento_mecanico || [], 'elemento_mecanico');
+    populateDropdown('analisisPerspectivaCategoria', categorias.perspectiva || [], 'perspectiva');
+    populateDropdown('analisisActitud', categorias.actitud || [], 'actitud');
+    populateDropdown('analisisConceptoCategoria', categorias.concepto || [], 'concepto');
+    populateDropdown('analisisFormulacionCategoria', categorias.formulacion || [], 'formulacion');
+}
+
+// Poblar un dropdown con opción "Agregar nuevo"
+function populateDropdown(elementId, options, tipo) {
+    const select = document.getElementById(elementId);
+    if (!select) return;
+
+    // Remove previous change listeners
+    const newSelect = select.cloneNode(false);
+    select.parentNode.replaceChild(newSelect, select);
+
+    // Limpiar opciones existentes excepto la primera
+    newSelect.innerHTML = '<option value="">Seleccionar...</option>';
+
+    // Añadir opciones existentes
+    options.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt.valor;
+        option.textContent = opt.valor;
+        newSelect.appendChild(option);
+    });
+
+    // Añadir opción "Agregar nuevo"
+    const addNew = document.createElement('option');
+    addNew.value = '__ADD_NEW__';
+    addNew.textContent = '+ Agregar nuevo';
+    addNew.className = 'dropdown-add-option';
+    newSelect.appendChild(addNew);
+
+    // Evento para manejar "Agregar nuevo"
+    newSelect.addEventListener('change', async (e) => {
+        if (e.target.value === '__ADD_NEW__') {
+            const newValue = prompt(`Nueva categoría de ${tipo}:`);
+            if (newValue && newValue.trim()) {
+                try {
+                    const response = await apiRequest('/api/categorias/', {
+                        method: 'POST',
+                        body: JSON.stringify({ tipo, valor: newValue.trim() })
+                    });
+
+                    if (response.success) {
+                        await loadCategorias(); // Recargar todas las categorías
+                        document.getElementById(elementId).value = newValue.trim(); // Seleccionar la nueva
+                        showToast(`Categoría "${newValue}" añadida`);
+                    }
+                } catch (error) {
+                    showToast('Error al crear categoría', 'error');
+                    e.target.value = '';
+                }
+            } else {
+                e.target.value = '';
+            }
+        }
+    });
+}
+
+// Inicializar formulario de análisis wizard
+function initAnalisisWizardForm() {
+    const form = document.getElementById('analisisWizardForm');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await saveAnalisisWizard();
+    });
+}
+
+// Guardar análisis desde wizard
+async function saveAnalisisWizard() {
+    try {
+        showLoading('Guardando análisis...');
+
+        // Collect all lines (filter out null/empty)
+        const premisaText = premisaLines.filter(l => l && l.trim()).join('\n');
+        const rupturaText = rupturaLines.filter(l => l && l.trim()).join('\n');
+        const remateText = remateLines.filter(l => l && l.trim()).join('\n');
+
+        const formData = {
+            titulo_referencia: document.getElementById('analisisTitulo').value,
+            comediante: document.getElementById('analisisComediante').value,
+            premisa: premisaText,
+            elemento_mecanico: document.getElementById('analisisElementoMecanico').value,
+            ruptura: rupturaText,
+            remate: remateText,
+            perspectiva_categoria: document.getElementById('analisisPerspectivaCategoria').value,
+            perspectiva_justificacion: document.getElementById('analisisPerspectivaJustificacion').value,
+            actitud: document.getElementById('analisisActitud').value,
+            concepto: document.getElementById('analisisConcepto').value,
+            concepto_categoria: document.getElementById('analisisConceptoCategoria').value,
+            desarrollo_idea: document.getElementById('analisisDesarrolloIdea').value,
+            formulacion_categoria: document.getElementById('analisisFormulacionCategoria').value,
+            formulacion_justificacion: document.getElementById('analisisFormulacionJustificacion').value,
+            notas: document.getElementById('analisisNotas').value
+        };
+
+        // Validar campos requeridos
+        if (!formData.premisa || !formData.ruptura || !formData.remate) {
+            hideLoading();
+            showToast('Premisa, ruptura y remate son obligatorios', 'error');
+            return;
+        }
+
+        const response = await apiRequest('/api/analisis-chistes/', {
+            method: 'POST',
+            body: JSON.stringify(formData)
+        });
+
+        hideLoading();
+
+        if (response.success) {
+            showToast('¡Análisis guardado exitosamente!');
+            // Reset wizard
+            document.getElementById('analisisWizardForm').reset();
+            initAnalisisWizard();
+            // Load biblioteca with new data
+            await loadBiblioteca();
+        }
+
+    } catch (error) {
+        hideLoading();
+        showToast('Error al guardar análisis', 'error');
+        console.error('Error:', error);
+    }
+}
+
+// ====================
+// BIBLIOTECA
+// ====================
+
+let bibliotecaData = [];
+let bibliotecaFilters = {
+    comediante: '',
+    titulo: '',
+    concepto: ''
+};
+
+async function loadBiblioteca() {
+    try {
+        showLoading('Cargando biblioteca...');
+
+        const response = await apiRequest('/api/analisis-chistes/');
+
+        if (response.success) {
+            bibliotecaData = response.data;
+            displayBiblioteca(bibliotecaData);
+
+            // Update concept filter options
+            const conceptos = [...new Set(bibliotecaData.map(a => a.concepto).filter(c => c))];
+            const conceptoSelect = document.getElementById('filterBibliotecaConcepto');
+            if (conceptoSelect) {
+                conceptoSelect.innerHTML = '<option value="">Todos los conceptos</option>';
+                conceptos.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    opt.textContent = c;
+                    conceptoSelect.appendChild(opt);
+                });
+            }
+        }
+
+        hideLoading();
+
+    } catch (error) {
+        hideLoading();
+        console.error('Error loading biblioteca:', error);
+        showToast('Error al cargar biblioteca', 'error');
+    }
+}
+
+function displayBiblioteca(data) {
+    const grid = document.getElementById('bibliotecaGrid');
+    const empty = document.getElementById('bibliotecaEmpty');
+
+    if (!data || data.length === 0) {
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+    }
+
+    empty.classList.add('hidden');
+
+    grid.innerHTML = data.map(analisis => `
+        <div class="glass card-hover rounded-xl p-6 border-2 border-blue-100">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-blue-800 mb-1">${analisis.titulo_referencia || 'Sin título'}</h3>
+                    <p class="text-sm text-gray-600">🎭 ${analisis.comediante || 'Comediante desconocido'}</p>
+                </div>
+                <span class="text-xs text-gray-500">${formatDate(analisis.fecha_creacion)}</span>
+            </div>
+
+            ${analisis.concepto ? `
+                <div class="mb-3">
+                    <span class="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-semibold">
+                        💡 ${analisis.concepto}
+                    </span>
+                </div>
+            ` : ''}
+
+            <div class="space-y-2 text-sm mb-4">
+                ${analisis.perspectiva_categoria ? `
+                    <p class="text-gray-700"><strong>👁️ Perspectiva:</strong> ${analisis.perspectiva_categoria}</p>
+                ` : ''}
+                ${analisis.formulacion_categoria ? `
+                    <p class="text-gray-700"><strong>📝 Formulación:</strong> ${analisis.formulacion_categoria}</p>
+                ` : ''}
+                ${analisis.actitud ? `
+                    <p class="text-gray-700"><strong>🎭 Actitud:</strong> ${analisis.actitud}</p>
+                ` : ''}
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="viewBibliotecaItem('${analisis.id}')"
+                    class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm">
+                    👁️ Ver
+                </button>
+                <button onclick="editBibliotecaItem('${analisis.id}')"
+                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm">
+                    ✏️
+                </button>
+                <button onclick="deleteBibliotecaItem('${analisis.id}')"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold text-sm">
+                    🗑️
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function applyBibliotecaFilters() {
+    const comediante = document.getElementById('filterBibliotecaComediante').value.toLowerCase();
+    const titulo = document.getElementById('filterBibliotecaTitulo').value.toLowerCase();
+    const concepto = document.getElementById('filterBibliotecaConcepto').value;
+
+    const filtered = bibliotecaData.filter(item => {
+        const matchComediante = !comediante || (item.comediante && item.comediante.toLowerCase().includes(comediante));
+        const matchTitulo = !titulo || (item.titulo_referencia && item.titulo_referencia.toLowerCase().includes(titulo));
+        const matchConcepto = !concepto || item.concepto === concepto;
+
+        return matchComediante && matchTitulo && matchConcepto;
+    });
+
+    displayBiblioteca(filtered);
+}
+
+function viewBibliotecaItem(id) {
+    const analisis = bibliotecaData.find(a => a.id === id);
+    if (!analisis) return;
+
+    const premisaLines = analisis.premisa ? analisis.premisa.split('\n') : [];
+    const rupturaLines = analisis.ruptura ? analisis.ruptura.split('\n') : [];
+    const remateLines = analisis.remate ? analisis.remate.split('\n') : [];
+
+    const detailHTML = `
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="this.remove()">
+            <div class="glass rounded-2xl p-8 max-w-3xl max-h-[90vh] overflow-y-auto m-4" onclick="event.stopPropagation()">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-blue-800 mb-2">${analisis.titulo_referencia || 'Sin título'}</h2>
+                        <p class="text-gray-600">🎭 ${analisis.comediante || 'Comediante desconocido'}</p>
+                    </div>
+                    <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700 text-3xl">×</button>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Premisa -->
+                    <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+                        <h3 class="text-lg font-bold text-blue-800 mb-3">📋 Premisa</h3>
+                        ${premisaLines.map((line, i) => `<p class="text-sm mb-1"><strong>Línea ${i+1}:</strong> ${line}</p>`).join('')}
+                        ${analisis.elemento_mecanico ? `<p class="text-xs text-gray-600 mt-2"><strong>Elemento Mecánico:</strong> ${analisis.elemento_mecanico}</p>` : ''}
+                    </div>
+
+                    <!-- Ruptura -->
+                    <div class="bg-orange-50 border-2 border-orange-200 rounded-xl p-4">
+                        <h3 class="text-lg font-bold text-orange-600 mb-3">💥 Ruptura</h3>
+                        ${rupturaLines.map((line, i) => `<p class="text-sm mb-1"><strong>Línea ${i+1}:</strong> ${line}</p>`).join('')}
+                    </div>
+
+                    <!-- Remate -->
+                    <div class="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-4">
+                        <h3 class="text-lg font-bold text-emerald-600 mb-3">🎯 Remate</h3>
+                        ${remateLines.map((line, i) => `<p class="text-sm mb-1"><strong>Línea ${i+1}:</strong> ${line}</p>`).join('')}
+                    </div>
+
+                    <!-- Perspectiva y Concepto -->
+                    ${analisis.perspectiva_categoria || analisis.concepto ? `
+                        <div class="bg-indigo-50 border-2 border-indigo-200 rounded-xl p-4">
+                            <h3 class="text-lg font-bold text-indigo-700 mb-3">👁️ Perspectiva y Concepto</h3>
+                            ${analisis.perspectiva_categoria ? `<p class="text-sm mb-2"><strong>Perspectiva:</strong> ${analisis.perspectiva_categoria}</p>` : ''}
+                            ${analisis.perspectiva_justificacion ? `<p class="text-sm mb-2 text-gray-700">${analisis.perspectiva_justificacion}</p>` : ''}
+                            ${analisis.actitud ? `<p class="text-sm mb-2"><strong>Actitud:</strong> ${analisis.actitud}</p>` : ''}
+                            ${analisis.concepto ? `<p class="text-sm mb-2"><strong>Concepto:</strong> ${analisis.concepto}</p>` : ''}
+                            ${analisis.concepto_categoria ? `<p class="text-sm text-gray-600"><strong>Categoría:</strong> ${analisis.concepto_categoria}</p>` : ''}
+                        </div>
+                    ` : ''}
+
+                    <!-- Desarrollo de la Idea -->
+                    ${analisis.desarrollo_idea ? `
+                        <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
+                            <h3 class="text-lg font-bold text-yellow-800 mb-3">🗺️ Desarrollo de la Idea</h3>
+                            <p class="text-sm whitespace-pre-wrap">${analisis.desarrollo_idea}</p>
+                        </div>
+                    ` : ''}
+
+                    <!-- Formulación -->
+                    ${analisis.formulacion_categoria ? `
+                        <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-4">
+                            <h3 class="text-lg font-bold text-purple-700 mb-3">📝 Formulación</h3>
+                            <p class="text-sm mb-2"><strong>Categoría:</strong> ${analisis.formulacion_categoria}</p>
+                            ${analisis.formulacion_justificacion ? `<p class="text-sm text-gray-700">${analisis.formulacion_justificacion}</p>` : ''}
+                        </div>
+                    ` : ''}
+
+                    <!-- Notas -->
+                    ${analisis.notas ? `
+                        <div class="bg-gray-50 border-2 border-gray-200 rounded-xl p-4">
+                            <h3 class="text-lg font-bold text-gray-700 mb-3">📌 Notas</h3>
+                            <p class="text-sm whitespace-pre-wrap">${analisis.notas}</p>
+                        </div>
+                    ` : ''}
+                </div>
+
+                <div class="mt-6 flex justify-end gap-3">
+                    <button onclick="editBibliotecaItem('${analisis.id}'); this.closest('.fixed').remove();"
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
+                        ✏️ Editar
+                    </button>
+                    <button onclick="this.closest('.fixed').remove()"
+                        class="px-6 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 font-semibold">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', detailHTML);
+}
+
+async function editBibliotecaItem(id) {
+    try {
+        const response = await apiRequest(`/api/analisis-chistes/${id}`);
+
+        if (response.success) {
+            const analisis = response.data;
+            currentAnalisisId = id;
+
+            // Switch to análisis tab
+            document.querySelector('[data-tab="analisis"]').click();
+
+            // Reset wizard
+            currentStep = 1;
+            updateWizardProgress();
+            document.querySelectorAll('.wizard-step').forEach(step => step.classList.remove('active'));
+            document.querySelector('.wizard-step[data-step="1"]').classList.add('active');
+
+            // Fill form
+            document.getElementById('analisisTitulo').value = analisis.titulo_referencia || '';
+            document.getElementById('analisisComediante').value = analisis.comediante || '';
+
+            // Fill premisa lines
+            premisaLines = analisis.premisa ? analisis.premisa.split('\n') : [];
+            document.getElementById('premisaLinesContainer').innerHTML = '';
+            if (premisaLines.length === 0) {
+                addPremisaLine();
+            } else {
+                premisaLines.forEach(line => addPremisaLine(line));
+            }
+
+            // Fill ruptura lines
+            rupturaLines = analisis.ruptura ? analisis.ruptura.split('\n') : [];
+            document.getElementById('rupturaLinesContainer').innerHTML = '';
+            if (rupturaLines.length === 0) {
+                addRupturaLine();
+            } else {
+                rupturaLines.forEach(line => addRupturaLine(line));
+            }
+
+            // Fill remate lines
+            remateLines = analisis.remate ? analisis.remate.split('\n') : [];
+            document.getElementById('remateLinesContainer').innerHTML = '';
+            if (remateLines.length === 0) {
+                addRemateLine();
+            } else {
+                remateLines.forEach(line => addRemateLine(line));
+            }
+
+            document.getElementById('analisisElementoMecanico').value = analisis.elemento_mecanico || '';
+            document.getElementById('analisisPerspectivaCategoria').value = analisis.perspectiva_categoria || '';
+            document.getElementById('analisisPerspectivaJustificacion').value = analisis.perspectiva_justificacion || '';
+            document.getElementById('analisisActitud').value = analisis.actitud || '';
+            document.getElementById('analisisConcepto').value = analisis.concepto || '';
+            document.getElementById('analisisConceptoCategoria').value = analisis.concepto_categoria || '';
+            document.getElementById('analisisDesarrolloIdea').value = analisis.desarrollo_idea || '';
+            document.getElementById('analisisFormulacionCategoria').value = analisis.formulacion_categoria || '';
+            document.getElementById('analisisFormulacionJustificacion').value = analisis.formulacion_justificacion || '';
+            document.getElementById('analisisNotas').value = analisis.notas || '';
+
+            showToast('Editando análisis - completa el wizard');
+        }
+    } catch (error) {
+        showToast('Error al cargar análisis', 'error');
+    }
+}
+
+async function deleteBibliotecaItem(id) {
+    if (!confirm('¿Seguro que quieres eliminar este análisis? Esta acción no se puede deshacer.')) return;
+
+    try {
+        showLoading('Eliminando...');
+
+        const response = await apiRequest(`/api/analisis-chistes/${id}`, {
+            method: 'DELETE'
+        });
+
+        hideLoading();
+
+        if (response.success) {
+            showToast('Análisis eliminado exitosamente');
+            await loadBiblioteca();
+        }
+    } catch (error) {
+        hideLoading();
+        showToast('Error al eliminar análisis', 'error');
+    }
 }
 
 // ====================
@@ -159,7 +878,7 @@ async function saveJoke() {
             estado: document.getElementById('jokeStatus').value,
             calificacion: document.getElementById('jokeRating').value ? parseInt(document.getElementById('jokeRating').value) : null,
             notas: document.getElementById('jokeNotes').value.trim(),
-            auto_analyze: false // Cambiar a true si quieres análisis automático
+            auto_analyze: false
         };
 
         if (!jokeData.contenido) {
@@ -479,92 +1198,6 @@ function displayRuptureAnalysis(rupture) {
 }
 
 // ====================
-// JOKES LIST
-// ====================
-
-async function loadJokes() {
-    try {
-        showLoading('Cargando chistes...');
-
-        const filterStatus = document.getElementById('filterStatus').value;
-        let url = '/api/jokes/';
-        if (filterStatus) {
-            url += `?estado=${filterStatus}`;
-        }
-
-        const result = await apiRequest(url);
-        allJokes = result.data;
-
-        displayJokes(allJokes);
-
-    } catch (error) {
-        showToast('Error cargando chistes', 'error');
-        document.getElementById('jokesList').innerHTML =
-            '<p class="text-red-500 text-center py-8">Error cargando chistes</p>';
-    } finally {
-        hideLoading();
-    }
-}
-
-function displayJokes(jokes) {
-    const container = document.getElementById('jokesList');
-
-    if (jokes.length === 0) {
-        container.innerHTML =
-            '<p class="text-gray-500 text-center py-8">No hay chistes todavía. ¡Escribe tu primero!</p>';
-        return;
-    }
-
-    const html = jokes.map(joke => `
-        <div class="joke-card bg-white p-4 rounded-lg shadow">
-            <div class="flex justify-between items-start mb-2">
-                <h3 class="font-bold text-lg">${joke.titulo || 'Sin título'}</h3>
-                <span class="badge badge-${joke.estado}">${getStatusEmoji(joke.estado)} ${joke.estado}</span>
-            </div>
-
-            ${joke.concepto ? `<p class="text-xs text-purple-600 mb-1"><strong>💡 Concepto:</strong> ${joke.concepto}</p>` : ''}
-
-            <p class="text-gray-700 mb-3 whitespace-pre-wrap">${joke.contenido}</p>
-
-            ${joke.premisa ? `<p class="text-xs text-blue-600 mb-1"><strong>📋 Premisa:</strong> ${joke.premisa}</p>` : ''}
-            ${joke.remate ? `<p class="text-xs text-green-600 mb-1"><strong>🎯 Remate:</strong> ${joke.remate}</p>` : ''}
-
-            <div class="flex justify-between items-center text-sm text-gray-600">
-                <div class="flex gap-4">
-                    ${joke.calificacion ? `<span>⭐ ${joke.calificacion}/10</span>` : ''}
-                    <span>🎭 Usado ${joke.veces_usado || 0} veces</span>
-                </div>
-                <span class="text-xs">${formatDate(joke.fecha_creacion)}</span>
-            </div>
-
-            ${joke.notas ? `<p class="text-xs text-gray-500 mt-2 italic">${joke.notas}</p>` : ''}
-        </div>
-    `).join('');
-
-    container.innerHTML = html;
-}
-
-function getStatusEmoji(status) {
-    const emojis = {
-        'borrador': '📝',
-        'revisado': '✏️',
-        'probado': '🎭',
-        'pulido': '✨',
-        'archivado': '📦'
-    };
-    return emojis[status] || '📝';
-}
-
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-}
-
-// ====================
 // BRAINSTORM
 // ====================
 
@@ -777,42 +1410,6 @@ function getTipoEmoji(tipo) {
 }
 
 // ====================
-// PWA INSTALL
-// ====================
-
-let deferredPrompt;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    document.getElementById('installBtn').classList.remove('hidden');
-});
-
-document.getElementById('installBtn').addEventListener('click', async () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`User response to the install prompt: ${outcome}`);
-        deferredPrompt = null;
-        document.getElementById('installBtn').classList.add('hidden');
-    }
-});
-
-// ====================
-// FILTERS
-// ====================
-
-function initFilters() {
-    document.getElementById('filterStatus').addEventListener('change', () => {
-        loadJokes();
-    });
-
-    document.getElementById('refreshBtn').addEventListener('click', () => {
-        loadJokes();
-    });
-}
-
-// ====================
 // ADMIN PANEL
 // ====================
 
@@ -824,9 +1421,13 @@ async function loadSystemStats() {
         const jokesResponse = await apiRequest('/api/jokes/');
         const jokes = jokesResponse.data || [];
 
+        // Get all análisis
+        const analisisResponse = await apiRequest('/api/analisis-chistes/');
+        const analisis = analisisResponse.data || [];
+
         // Calculate stats
         const totalJokes = jokes.filter(j => !j.eliminado).length;
-        const totalAnalysis = jokes.filter(j => j.analisis_ia && j.analisis_ia.length > 0).length;
+        const totalAnalysis = analisis.length;
 
         const ratings = jokes
             .filter(j => !j.eliminado && j.calificacion)
@@ -860,356 +1461,32 @@ async function loadSystemStats() {
     }
 }
 
-// Auto-load stats when admin tab is opened
-function initAdminPanel() {
-    const adminTab = document.querySelector('[data-tab="admin"]');
-    if (adminTab) {
-        adminTab.addEventListener('click', () => {
-            // Load stats only if not already loaded
-            const totalJokes = document.getElementById('totalJokes').textContent;
-            if (totalJokes === '-') {
-                loadSystemStats();
-            }
-        });
-    }
-}
-
 // ====================
-// ANÁLISIS DE CHISTES
+// PWA INSTALL
 // ====================
 
-let categorias = {
-    perspectiva: [],
-    actitud: [],
-    concepto: [],
-    formulacion: [],
-    elemento_mecanico: []
-};
-let currentAnalisisId = null;
-let allAnalisis = [];
+let deferredPrompt;
 
-// Cargar todas las categorías al iniciar
-async function loadCategorias() {
-    try {
-        const response = await apiRequest('/api/categorias/all');
-        if (response.success) {
-            categorias = response.data;
-            populateAllDropdowns();
-        }
-    } catch (error) {
-        console.error('Error loading categorías:', error);
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('installBtn').classList.remove('hidden');
+});
+
+document.getElementById('installBtn').addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        deferredPrompt = null;
+        document.getElementById('installBtn').classList.add('hidden');
     }
-}
-
-// Poblar todos los dropdowns
-function populateAllDropdowns() {
-    populateDropdown('analisisElementoMecanico', categorias.elemento_mecanico || [], 'elemento_mecanico');
-    populateDropdown('analisisPerspectivaCategoria', categorias.perspectiva || [], 'perspectiva');
-    populateDropdown('analisisActitud', categorias.actitud || [], 'actitud');
-    populateDropdown('analisisConceptoCategoria', categorias.concepto || [], 'concepto');
-    populateDropdown('analisisFormulacionCategoria', categorias.formulacion || [], 'formulacion');
-}
-
-// Poblar un dropdown con opción "Agregar nuevo"
-function populateDropdown(elementId, options, tipo) {
-    const select = document.getElementById(elementId);
-    if (!select) return;
-
-    // Limpiar opciones existentes excepto la primera
-    select.innerHTML = '<option value="">Seleccionar...</option>';
-
-    // Añadir opciones existentes
-    options.forEach(opt => {
-        const option = document.createElement('option');
-        option.value = opt.valor;
-        option.textContent = opt.valor;
-        select.appendChild(option);
-    });
-
-    // Añadir opción "Agregar nuevo"
-    const addNew = document.createElement('option');
-    addNew.value = '__ADD_NEW__';
-    addNew.textContent = '+ Agregar nuevo';
-    addNew.className = 'dropdown-add-option';
-    select.appendChild(addNew);
-
-    // Evento para manejar "Agregar nuevo"
-    select.addEventListener('change', async (e) => {
-        if (e.target.value === '__ADD_NEW__') {
-            const newValue = prompt(`Nueva categoría de ${tipo}:`);
-            if (newValue && newValue.trim()) {
-                try {
-                    const response = await apiRequest('/api/categorias/', {
-                        method: 'POST',
-                        body: JSON.stringify({ tipo, valor: newValue.trim() })
-                    });
-
-                    if (response.success) {
-                        await loadCategorias(); // Recargar todas las categorías
-                        e.target.value = newValue.trim(); // Seleccionar la nueva
-                        showToast(`Categoría "${newValue}" añadida`);
-                    }
-                } catch (error) {
-                    showToast('Error al crear categoría', 'error');
-                    e.target.value = '';
-                }
-            } else {
-                e.target.value = '';
-            }
-        }
-    });
-}
-
-// Inicializar formulario de análisis
-function initAnalisisForm() {
-    const form = document.getElementById('analisisForm');
-    if (!form) return;
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await saveAnalisis();
-    });
-
-    // Botón limpiar
-    const btnLimpiar = document.getElementById('btnLimpiarAnalisis');
-    if (btnLimpiar) {
-        btnLimpiar.addEventListener('click', () => {
-            form.reset();
-            currentAnalisisId = null;
-            showToast('Formulario limpiado');
-        });
-    }
-
-    // Botón recargar tabla
-    const btnReload = document.getElementById('btnReloadAnalisis');
-    if (btnReload) {
-        btnReload.addEventListener('click', () => loadAnalisisTable());
-    }
-}
-
-// Guardar análisis
-async function saveAnalisis() {
-    try {
-        showLoading('Guardando análisis...');
-
-        const formData = {
-            titulo_referencia: document.getElementById('analisisTitulo').value,
-            comediante: document.getElementById('analisisComediante').value,
-            premisa: document.getElementById('analisisPremisa').value,
-            elemento_mecanico: document.getElementById('analisisElementoMecanico').value,
-            ruptura: document.getElementById('analisisRuptura').value,
-            remate: document.getElementById('analisisRemate').value,
-            perspectiva_categoria: document.getElementById('analisisPerspectivaCategoria').value,
-            perspectiva_justificacion: document.getElementById('analisisPerspectivaJustificacion').value,
-            actitud: document.getElementById('analisisActitud').value,
-            concepto: document.getElementById('analisisConcepto').value,
-            concepto_categoria: document.getElementById('analisisConceptoCategoria').value,
-            desarrollo_idea: document.getElementById('analisisDesarrolloIdea').value,
-            formulacion_categoria: document.getElementById('analisisFormulacionCategoria').value,
-            formulacion_justificacion: document.getElementById('analisisFormulacionJustificacion').value,
-            notas: document.getElementById('analisisNotas').value
-        };
-
-        // Validar campos requeridos
-        if (!formData.premisa || !formData.ruptura || !formData.remate) {
-            hideLoading();
-            showToast('Premisa, ruptura y remate son obligatorios', 'error');
-            return;
-        }
-
-        let response;
-        if (currentAnalisisId) {
-            // Actualizar existente
-            response = await apiRequest(`/api/analisis-chistes/${currentAnalisisId}`, {
-                method: 'PUT',
-                body: JSON.stringify(formData)
-            });
-        } else {
-            // Crear nuevo
-            response = await apiRequest('/api/analisis-chistes/', {
-                method: 'POST',
-                body: JSON.stringify(formData)
-            });
-        }
-
-        hideLoading();
-
-        if (response.success) {
-            showToast(currentAnalisisId ? 'Análisis actualizado' : 'Análisis guardado');
-            document.getElementById('analisisForm').reset();
-            currentAnalisisId = null;
-            await loadAnalisisTable();
-        }
-
-    } catch (error) {
-        hideLoading();
-        showToast('Error al guardar análisis', 'error');
-        console.error('Error:', error);
-    }
-}
-
-// Cargar tabla de análisis
-async function loadAnalisisTable() {
-    try {
-        const response = await apiRequest('/api/analisis-chistes/');
-
-        if (response.success) {
-            allAnalisis = response.data;
-            displayAnalisisTable(allAnalisis);
-        }
-    } catch (error) {
-        console.error('Error loading análisis:', error);
-        showToast('Error al cargar análisis', 'error');
-    }
-}
-
-// Mostrar tabla de análisis
-function displayAnalisisTable(analisisList) {
-    const tbody = document.getElementById('analisisTableBody');
-    if (!tbody) return;
-
-    if (analisisList.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="text-center py-8 text-gray-500">
-                    No hay análisis guardados. ¡Comienza analizando tu primer chiste!
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
-    tbody.innerHTML = analisisList.map(analisis => `
-        <tr class="analisis-card cursor-pointer hover:bg-blue-50" onclick="viewAnalisis('${analisis.id}')">
-            <td class="font-semibold">${analisis.titulo_referencia || 'Sin título'}</td>
-            <td>${analisis.comediante || 'N/A'}</td>
-            <td>
-                ${analisis.concepto ? `<span class="badge badge-pulido">${analisis.concepto}</span>` : 'N/A'}
-            </td>
-            <td>${analisis.perspectiva_categoria || 'N/A'}</td>
-            <td>${new Date(analisis.fecha_creacion).toLocaleDateString()}</td>
-            <td class="space-x-2">
-                <button onclick="event.stopPropagation(); editAnalisis('${analisis.id}')"
-                    class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
-                    ✏️
-                </button>
-                <button onclick="event.stopPropagation(); deleteAnalisis('${analisis.id}')"
-                    class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm">
-                    🗑️
-                </button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-// Ver análisis (modal o expandir)
-function viewAnalisis(id) {
-    const analisis = allAnalisis.find(a => a.id === id);
-    if (!analisis) return;
-
-    alert(`📊 Análisis: ${analisis.titulo_referencia || 'Sin título'}
-
-📋 Premisa:
-${analisis.premisa || 'N/A'}
-
-💥 Ruptura:
-${analisis.ruptura || 'N/A'}
-
-🎯 Remate:
-${analisis.remate || 'N/A'}
-
-👁️ Perspectiva: ${analisis.perspectiva_categoria || 'N/A'}
-🎭 Actitud: ${analisis.actitud || 'N/A'}
-💡 Concepto: ${analisis.concepto || 'N/A'}
-
-🗺️ Desarrollo:
-${analisis.desarrollo_idea || 'N/A'}
-
-📝 Formulación: ${analisis.formulacion_categoria || 'N/A'}
-
-📌 Notas:
-${analisis.notas || 'N/A'}`);
-}
-
-// Editar análisis
-async function editAnalisis(id) {
-    try {
-        const response = await apiRequest(`/api/analisis-chistes/${id}`);
-
-        if (response.success) {
-            const analisis = response.data;
-            currentAnalisisId = id;
-
-            // Llenar formulario
-            document.getElementById('analisisTitulo').value = analisis.titulo_referencia || '';
-            document.getElementById('analisisComediante').value = analisis.comediante || '';
-            document.getElementById('analisisPremisa').value = analisis.premisa || '';
-            document.getElementById('analisisElementoMecanico').value = analisis.elemento_mecanico || '';
-            document.getElementById('analisisRuptura').value = analisis.ruptura || '';
-            document.getElementById('analisisRemate').value = analisis.remate || '';
-            document.getElementById('analisisPerspectivaCategoria').value = analisis.perspectiva_categoria || '';
-            document.getElementById('analisisPerspectivaJustificacion').value = analisis.perspectiva_justificacion || '';
-            document.getElementById('analisisActitud').value = analisis.actitud || '';
-            document.getElementById('analisisConcepto').value = analisis.concepto || '';
-            document.getElementById('analisisConceptoCategoria').value = analisis.concepto_categoria || '';
-            document.getElementById('analisisDesarrolloIdea').value = analisis.desarrollo_idea || '';
-            document.getElementById('analisisFormulacionCategoria').value = analisis.formulacion_categoria || '';
-            document.getElementById('analisisFormulacionJustificacion').value = analisis.formulacion_justificacion || '';
-            document.getElementById('analisisNotas').value = analisis.notas || '';
-
-            // Scroll al formulario
-            document.getElementById('analisisForm').scrollIntoView({ behavior: 'smooth' });
-            showToast('Editando análisis');
-        }
-    } catch (error) {
-        showToast('Error al cargar análisis', 'error');
-    }
-}
-
-// Eliminar análisis
-async function deleteAnalisis(id) {
-    if (!confirm('¿Seguro que quieres eliminar este análisis?')) return;
-
-    try {
-        showLoading('Eliminando...');
-
-        const response = await apiRequest(`/api/analisis-chistes/${id}`, {
-            method: 'DELETE'
-        });
-
-        hideLoading();
-
-        if (response.success) {
-            showToast('Análisis eliminado');
-            await loadAnalisisTable();
-        }
-    } catch (error) {
-        hideLoading();
-        showToast('Error al eliminar análisis', 'error');
-    }
-}
-
-// Inicializar pestaña de análisis
-function initAnalisisTab() {
-    const analisisTab = document.querySelector('[data-tab="analisis"]');
-    if (analisisTab) {
-        analisisTab.addEventListener('click', async () => {
-            // Cargar categorías y tabla solo la primera vez
-            if (categorias.perspectiva.length === 0) {
-                await loadCategorias();
-            }
-            if (allAnalisis.length === 0) {
-                await loadAnalisisTable();
-            }
-        });
-    }
-}
+});
 
 // ====================
 // AUTENTICACIÓN
 // ====================
 
-// Logout
 async function logout() {
     if (!confirm('¿Seguro que quieres cerrar sesión?')) return;
 
@@ -1228,6 +1505,19 @@ async function logout() {
 }
 
 // ====================
+// UTILITY FUNCTIONS
+// ====================
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+// ====================
 // INITIALIZATION
 // ====================
 
@@ -1235,16 +1525,18 @@ document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     initJokeForm();
     initBrainstorm();
-    initFilters();
     initBitacora();
-    initAdminPanel();
-    initAnalisisForm();
-    initAnalisisTab();
+    initAnalisisWizardForm();
 
     // Logout button
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', logout);
+    }
+
+    // Initialize wizard on first load if on análisis tab
+    if (document.querySelector('[data-tab="analisis"]').classList.contains('active')) {
+        initAnalisisWizard();
     }
 
     console.log('Método Comedia - App initialized ✨');

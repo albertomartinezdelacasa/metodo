@@ -875,6 +875,337 @@ function initAdminPanel() {
 }
 
 // ====================
+// ANÁLISIS DE CHISTES
+// ====================
+
+let categorias = {
+    perspectiva: [],
+    actitud: [],
+    concepto: [],
+    formulacion: [],
+    elemento_mecanico: []
+};
+let currentAnalisisId = null;
+let allAnalisis = [];
+
+// Cargar todas las categorías al iniciar
+async function loadCategorias() {
+    try {
+        const response = await apiRequest('/api/categorias/all');
+        if (response.success) {
+            categorias = response.data;
+            populateAllDropdowns();
+        }
+    } catch (error) {
+        console.error('Error loading categorías:', error);
+    }
+}
+
+// Poblar todos los dropdowns
+function populateAllDropdowns() {
+    populateDropdown('analisisElementoMecanico', categorias.elemento_mecanico || [], 'elemento_mecanico');
+    populateDropdown('analisisPerspectivaCategoria', categorias.perspectiva || [], 'perspectiva');
+    populateDropdown('analisisActitud', categorias.actitud || [], 'actitud');
+    populateDropdown('analisisConceptoCategoria', categorias.concepto || [], 'concepto');
+    populateDropdown('analisisFormulacionCategoria', categorias.formulacion || [], 'formulacion');
+}
+
+// Poblar un dropdown con opción "Agregar nuevo"
+function populateDropdown(elementId, options, tipo) {
+    const select = document.getElementById(elementId);
+    if (!select) return;
+
+    // Limpiar opciones existentes excepto la primera
+    select.innerHTML = '<option value="">Seleccionar...</option>';
+
+    // Añadir opciones existentes
+    options.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt.valor;
+        option.textContent = opt.valor;
+        select.appendChild(option);
+    });
+
+    // Añadir opción "Agregar nuevo"
+    const addNew = document.createElement('option');
+    addNew.value = '__ADD_NEW__';
+    addNew.textContent = '+ Agregar nuevo';
+    addNew.className = 'dropdown-add-option';
+    select.appendChild(addNew);
+
+    // Evento para manejar "Agregar nuevo"
+    select.addEventListener('change', async (e) => {
+        if (e.target.value === '__ADD_NEW__') {
+            const newValue = prompt(`Nueva categoría de ${tipo}:`);
+            if (newValue && newValue.trim()) {
+                try {
+                    const response = await apiRequest('/api/categorias/', {
+                        method: 'POST',
+                        body: JSON.stringify({ tipo, valor: newValue.trim() })
+                    });
+
+                    if (response.success) {
+                        await loadCategorias(); // Recargar todas las categorías
+                        e.target.value = newValue.trim(); // Seleccionar la nueva
+                        showToast(`Categoría "${newValue}" añadida`);
+                    }
+                } catch (error) {
+                    showToast('Error al crear categoría', 'error');
+                    e.target.value = '';
+                }
+            } else {
+                e.target.value = '';
+            }
+        }
+    });
+}
+
+// Inicializar formulario de análisis
+function initAnalisisForm() {
+    const form = document.getElementById('analisisForm');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await saveAnalisis();
+    });
+
+    // Botón limpiar
+    const btnLimpiar = document.getElementById('btnLimpiarAnalisis');
+    if (btnLimpiar) {
+        btnLimpiar.addEventListener('click', () => {
+            form.reset();
+            currentAnalisisId = null;
+            showToast('Formulario limpiado');
+        });
+    }
+
+    // Botón recargar tabla
+    const btnReload = document.getElementById('btnReloadAnalisis');
+    if (btnReload) {
+        btnReload.addEventListener('click', () => loadAnalisisTable());
+    }
+}
+
+// Guardar análisis
+async function saveAnalisis() {
+    try {
+        showLoading('Guardando análisis...');
+
+        const formData = {
+            titulo_referencia: document.getElementById('analisisTitulo').value,
+            comediante: document.getElementById('analisisComediante').value,
+            premisa: document.getElementById('analisisPremisa').value,
+            elemento_mecanico: document.getElementById('analisisElementoMecanico').value,
+            ruptura: document.getElementById('analisisRuptura').value,
+            remate: document.getElementById('analisisRemate').value,
+            perspectiva_categoria: document.getElementById('analisisPerspectivaCategoria').value,
+            perspectiva_justificacion: document.getElementById('analisisPerspectivaJustificacion').value,
+            actitud: document.getElementById('analisisActitud').value,
+            concepto: document.getElementById('analisisConcepto').value,
+            concepto_categoria: document.getElementById('analisisConceptoCategoria').value,
+            desarrollo_idea: document.getElementById('analisisDesarrolloIdea').value,
+            formulacion_categoria: document.getElementById('analisisFormulacionCategoria').value,
+            formulacion_justificacion: document.getElementById('analisisFormulacionJustificacion').value,
+            notas: document.getElementById('analisisNotas').value
+        };
+
+        // Validar campos requeridos
+        if (!formData.premisa || !formData.ruptura || !formData.remate) {
+            hideLoading();
+            showToast('Premisa, ruptura y remate son obligatorios', 'error');
+            return;
+        }
+
+        let response;
+        if (currentAnalisisId) {
+            // Actualizar existente
+            response = await apiRequest(`/api/analisis-chistes/${currentAnalisisId}`, {
+                method: 'PUT',
+                body: JSON.stringify(formData)
+            });
+        } else {
+            // Crear nuevo
+            response = await apiRequest('/api/analisis-chistes/', {
+                method: 'POST',
+                body: JSON.stringify(formData)
+            });
+        }
+
+        hideLoading();
+
+        if (response.success) {
+            showToast(currentAnalisisId ? 'Análisis actualizado' : 'Análisis guardado');
+            document.getElementById('analisisForm').reset();
+            currentAnalisisId = null;
+            await loadAnalisisTable();
+        }
+
+    } catch (error) {
+        hideLoading();
+        showToast('Error al guardar análisis', 'error');
+        console.error('Error:', error);
+    }
+}
+
+// Cargar tabla de análisis
+async function loadAnalisisTable() {
+    try {
+        const response = await apiRequest('/api/analisis-chistes/');
+
+        if (response.success) {
+            allAnalisis = response.data;
+            displayAnalisisTable(allAnalisis);
+        }
+    } catch (error) {
+        console.error('Error loading análisis:', error);
+        showToast('Error al cargar análisis', 'error');
+    }
+}
+
+// Mostrar tabla de análisis
+function displayAnalisisTable(analisisList) {
+    const tbody = document.getElementById('analisisTableBody');
+    if (!tbody) return;
+
+    if (analisisList.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center py-8 text-gray-500">
+                    No hay análisis guardados. ¡Comienza analizando tu primer chiste!
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = analisisList.map(analisis => `
+        <tr class="analisis-card cursor-pointer hover:bg-blue-50" onclick="viewAnalisis('${analisis.id}')">
+            <td class="font-semibold">${analisis.titulo_referencia || 'Sin título'}</td>
+            <td>${analisis.comediante || 'N/A'}</td>
+            <td>
+                ${analisis.concepto ? `<span class="badge badge-pulido">${analisis.concepto}</span>` : 'N/A'}
+            </td>
+            <td>${analisis.perspectiva_categoria || 'N/A'}</td>
+            <td>${new Date(analisis.fecha_creacion).toLocaleDateString()}</td>
+            <td class="space-x-2">
+                <button onclick="event.stopPropagation(); editAnalisis('${analisis.id}')"
+                    class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                    ✏️
+                </button>
+                <button onclick="event.stopPropagation(); deleteAnalisis('${analisis.id}')"
+                    class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm">
+                    🗑️
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Ver análisis (modal o expandir)
+function viewAnalisis(id) {
+    const analisis = allAnalisis.find(a => a.id === id);
+    if (!analisis) return;
+
+    alert(`📊 Análisis: ${analisis.titulo_referencia || 'Sin título'}
+
+📋 Premisa:
+${analisis.premisa || 'N/A'}
+
+💥 Ruptura:
+${analisis.ruptura || 'N/A'}
+
+🎯 Remate:
+${analisis.remate || 'N/A'}
+
+👁️ Perspectiva: ${analisis.perspectiva_categoria || 'N/A'}
+🎭 Actitud: ${analisis.actitud || 'N/A'}
+💡 Concepto: ${analisis.concepto || 'N/A'}
+
+🗺️ Desarrollo:
+${analisis.desarrollo_idea || 'N/A'}
+
+📝 Formulación: ${analisis.formulacion_categoria || 'N/A'}
+
+📌 Notas:
+${analisis.notas || 'N/A'}`);
+}
+
+// Editar análisis
+async function editAnalisis(id) {
+    try {
+        const response = await apiRequest(`/api/analisis-chistes/${id}`);
+
+        if (response.success) {
+            const analisis = response.data;
+            currentAnalisisId = id;
+
+            // Llenar formulario
+            document.getElementById('analisisTitulo').value = analisis.titulo_referencia || '';
+            document.getElementById('analisisComediante').value = analisis.comediante || '';
+            document.getElementById('analisisPremisa').value = analisis.premisa || '';
+            document.getElementById('analisisElementoMecanico').value = analisis.elemento_mecanico || '';
+            document.getElementById('analisisRuptura').value = analisis.ruptura || '';
+            document.getElementById('analisisRemate').value = analisis.remate || '';
+            document.getElementById('analisisPerspectivaCategoria').value = analisis.perspectiva_categoria || '';
+            document.getElementById('analisisPerspectivaJustificacion').value = analisis.perspectiva_justificacion || '';
+            document.getElementById('analisisActitud').value = analisis.actitud || '';
+            document.getElementById('analisisConcepto').value = analisis.concepto || '';
+            document.getElementById('analisisConceptoCategoria').value = analisis.concepto_categoria || '';
+            document.getElementById('analisisDesarrolloIdea').value = analisis.desarrollo_idea || '';
+            document.getElementById('analisisFormulacionCategoria').value = analisis.formulacion_categoria || '';
+            document.getElementById('analisisFormulacionJustificacion').value = analisis.formulacion_justificacion || '';
+            document.getElementById('analisisNotas').value = analisis.notas || '';
+
+            // Scroll al formulario
+            document.getElementById('analisisForm').scrollIntoView({ behavior: 'smooth' });
+            showToast('Editando análisis');
+        }
+    } catch (error) {
+        showToast('Error al cargar análisis', 'error');
+    }
+}
+
+// Eliminar análisis
+async function deleteAnalisis(id) {
+    if (!confirm('¿Seguro que quieres eliminar este análisis?')) return;
+
+    try {
+        showLoading('Eliminando...');
+
+        const response = await apiRequest(`/api/analisis-chistes/${id}`, {
+            method: 'DELETE'
+        });
+
+        hideLoading();
+
+        if (response.success) {
+            showToast('Análisis eliminado');
+            await loadAnalisisTable();
+        }
+    } catch (error) {
+        hideLoading();
+        showToast('Error al eliminar análisis', 'error');
+    }
+}
+
+// Inicializar pestaña de análisis
+function initAnalisisTab() {
+    const analisisTab = document.querySelector('[data-tab="analisis"]');
+    if (analisisTab) {
+        analisisTab.addEventListener('click', async () => {
+            // Cargar categorías y tabla solo la primera vez
+            if (categorias.perspectiva.length === 0) {
+                await loadCategorias();
+            }
+            if (allAnalisis.length === 0) {
+                await loadAnalisisTable();
+            }
+        });
+    }
+}
+
+// ====================
 // INITIALIZATION
 // ====================
 
@@ -885,6 +1216,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initFilters();
     initBitacora();
     initAdminPanel();
+    initAnalisisForm();
+    initAnalisisTab();
 
     console.log('Método Comedia - App initialized ✨');
 });

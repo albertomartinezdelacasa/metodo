@@ -31,7 +31,8 @@
       "Bash(mkdir:*)",
       "Bash(python configure_mobile.py:*)",
       "Bash(git commit:*)",
-      "Bash(python check_deploy_ready.py:*)"
+      "Bash(python check_deploy_ready.py:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": [],
     "ask": []

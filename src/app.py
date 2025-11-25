@@ -39,10 +39,14 @@ def create_app():
     from src.routes.jokes import jokes_bp
     from src.routes.ai import ai_bp
     from src.routes.bitacora import bitacora_bp
+    from src.routes.analisis_chistes import analisis_chistes_bp
+    from src.routes.categorias import categorias_bp
 
     app.register_blueprint(jokes_bp)
     app.register_blueprint(ai_bp)
     app.register_blueprint(bitacora_bp)
+    app.register_blueprint(analisis_chistes_bp, url_prefix='/api/analisis-chistes')
+    app.register_blueprint(categorias_bp, url_prefix='/api/categorias')
 
     # Rutas básicas
     @app.route('/')

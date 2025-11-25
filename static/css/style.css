@@ -1,24 +1,84 @@
-/* Método Comedia - Custom Styles */
+/* ============================================
+   MÉTODO COMEDIA - DISEÑO MOBILE-FIRST
+   Nueva paleta profesional optimizada para móvil
+   ============================================ */
 
-/* Tabs */
+/* === VARIABLES CSS === */
+:root {
+    /* Colores principales */
+    --primary: #1E40AF;      /* Azul profundo */
+    --secondary: #4F46E5;    /* Índigo */
+    --accent: #059669;       /* Verde esmeralda */
+    --highlight: #F97316;    /* Naranja cálido */
+
+    /* Tonos de gris */
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-400: #9CA3AF;
+    --gray-500: #6B7280;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --gray-800: #1F2937;
+    --gray-900: #111827;
+
+    /* Estados */
+    --success: #10B981;
+    --warning: #F59E0B;
+    --error: #EF4444;
+    --info: #3B82F6;
+
+    /* Touch targets (mínimo 48px para móvil) */
+    --touch-target: 48px;
+
+    /* Espaciado */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+}
+
+/* === RESET Y BASE === */
+* {
+    -webkit-tap-highlight-color: transparent; /* Eliminar highlight azul en móvil */
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* === TABS === */
 .tab-btn {
     position: relative;
-    color: #6B7280;
+    color: var(--gray-500);
     transition: all 0.3s ease;
     border-bottom: 3px solid transparent;
+    min-height: var(--touch-target);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: 0.9375rem; /* 15px */
+    font-weight: 500;
 }
 
 .tab-btn:hover {
-    color: #EF4444;
+    color: var(--primary);
+    background-color: var(--gray-50);
 }
 
 .tab-btn.active {
-    color: #EF4444;
-    border-bottom-color: #EF4444;
-    background-color: #FEF2F2;
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    background-color: #EFF6FF; /* blue-50 */
+    font-weight: 600;
 }
 
-/* Animations */
+/* === ANIMATIONS === */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -34,61 +94,156 @@
     animation: fadeIn 0.3s ease;
 }
 
-/* Joke Cards */
-.joke-card {
-    border-left: 4px solid #EF4444;
+/* === CARDS === */
+.joke-card,
+.analisis-card {
+    border-left: 4px solid var(--primary);
     transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-.joke-card:hover {
+.joke-card:hover,
+.analisis-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 25px rgba(30, 64, 175, 0.15);
 }
 
-/* Status Badges */
+.joke-card:active,
+.analisis-card:active {
+    transform: translateY(0);
+    box-shadow: 0 5px 15px rgba(30, 64, 175, 0.1);
+}
+
+/* === BOTONES MOBILE-FRIENDLY === */
+button,
+.btn {
+    min-height: var(--touch-target);
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+button:active,
+.btn:active {
+    transform: scale(0.97);
+}
+
+/* Botones primarios */
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #1E3A8A; /* blue-900 */
+}
+
+/* Botones secundarios */
+.btn-secondary {
+    background-color: var(--secondary);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #4338CA; /* indigo-700 */
+}
+
+/* Botones de acción */
+.btn-accent {
+    background-color: var(--accent);
+    color: white;
+}
+
+.btn-accent:hover {
+    background-color: #047857; /* emerald-700 */
+}
+
+/* Botones de highlight */
+.btn-highlight {
+    background-color: var(--highlight);
+    color: white;
+}
+
+.btn-highlight:hover {
+    background-color: #EA580C; /* orange-600 */
+}
+
+/* === INPUTS Y TEXTAREAS MOBILE === */
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+    min-height: var(--touch-target);
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 2px solid var(--gray-300);
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* === STATUS BADGES === */
 .badge {
     display: inline-block;
-    padding: 0.25rem 0.75rem;
+    padding: 0.375rem 0.875rem;
     border-radius: 9999px;
-    font-size: 0.75rem;
+    font-size: 0.8125rem; /* 13px */
     font-weight: 600;
 }
 
 .badge-borrador {
-    background-color: #F3F4F6;
-    color: #374151;
+    background-color: var(--gray-100);
+    color: var(--gray-700);
 }
 
 .badge-revisado {
-    background-color: #DBEAFE;
-    color: #1E40AF;
+    background-color: #DBEAFE; /* blue-100 */
+    color: #1E40AF; /* blue-800 */
 }
 
 .badge-probado {
-    background-color: #FEF3C7;
-    color: #92400E;
+    background-color: #FEF3C7; /* yellow-100 */
+    color: #92400E; /* yellow-800 */
 }
 
 .badge-pulido {
-    background-color: #D1FAE5;
-    color: #065F46;
+    background-color: #D1FAE5; /* green-100 */
+    color: #065F46; /* green-800 */
 }
 
-/* Score Display */
+/* === SCORE DISPLAY === */
 .score-bar {
-    height: 8px;
-    background-color: #E5E7EB;
+    height: 10px;
+    background-color: var(--gray-200);
     border-radius: 9999px;
     overflow: hidden;
 }
 
 .score-fill {
     height: 100%;
-    background: linear-gradient(90deg, #EF4444, #F59E0B, #10B981);
+    background: linear-gradient(90deg, var(--highlight), var(--warning), var(--success));
     transition: width 0.5s ease;
 }
 
-/* Loading Spinner */
+/* === LOADING SPINNER === */
 @keyframes spin {
     to {
         transform: rotate(360deg);
@@ -99,7 +254,7 @@
     animation: spin 1s linear infinite;
 }
 
-/* Toast Notifications */
+/* === TOAST NOTIFICATIONS === */
 @keyframes slideIn {
     from {
         transform: translateX(100%);
@@ -115,65 +270,64 @@
     animation: slideIn 0.3s ease;
 }
 
-/* Responsive Design */
-@media (max-width: 640px) {
-    .container {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-
-    .tab-btn {
-        font-size: 0.875rem;
-        padding: 0.75rem 1rem;
-    }
-
-    h1 {
-        font-size: 1.5rem;
-    }
-
-    h2 {
-        font-size: 1.25rem;
-    }
-}
-
-/* PWA Install Prompt */
-#installBtn {
-    transition: all 0.3s ease;
-}
-
-#installBtn:hover {
-    transform: scale(1.05);
-}
-
-/* Custom Scrollbar */
+/* === CUSTOM SCROLLBAR === */
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #F3F4F6;
+    background: var(--gray-100);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #EF4444;
-    border-radius: 4px;
+    background: var(--primary);
+    border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #DC2626;
+    background: #1E3A8A;
 }
 
-/* Analysis Section */
+/* === ANALYSIS SECTIONS === */
 .analysis-section {
-    border-left: 4px solid #3B82F6;
+    border-left: 4px solid var(--info);
     padding-left: 1rem;
     margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    background-color: #EFF6FF; /* blue-50 */
+    padding: 1rem;
 }
 
-/* Idea Cards */
+.analysis-section h3 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+/* Secciones específicas */
+.premisa-section {
+    border-left-color: var(--primary);
+    background-color: #EFF6FF; /* blue-50 */
+}
+
+.ruptura-section {
+    border-left-color: var(--highlight);
+    background-color: #FFF7ED; /* orange-50 */
+}
+
+.remate-section {
+    border-left-color: var(--accent);
+    background-color: #ECFDF5; /* emerald-50 */
+}
+
+.perspectiva-section {
+    border-left-color: var(--secondary);
+    background-color: #EEF2FF; /* indigo-50 */
+}
+
+/* === IDEA CARDS === */
 .idea-card {
     background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-    border-left: 4px solid #F59E0B;
+    border-left: 4px solid var(--warning);
     transition: all 0.3s ease;
 }
 
@@ -181,9 +335,9 @@
     transform: translateX(4px);
 }
 
-/* Skeleton Loading */
+/* === SKELETON LOADING === */
 .skeleton {
-    background: linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%);
+    background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%);
     background-size: 200% 100%;
     animation: loading 1.5s ease-in-out infinite;
 }
@@ -195,4 +349,183 @@
     100% {
         background-position: -200% 0;
     }
+}
+
+/* === DROPDOWNS EDITABLES === */
+.dropdown-editable {
+    position: relative;
+}
+
+.dropdown-add-option {
+    background-color: var(--gray-50);
+    color: var(--primary);
+    font-weight: 600;
+    border-top: 2px solid var(--gray-200);
+}
+
+.dropdown-add-option:hover {
+    background-color: #EFF6FF;
+}
+
+/* === TABLAS === */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+th {
+    background-color: var(--primary);
+    color: white;
+    font-weight: 600;
+    text-align: left;
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+tr:hover {
+    background-color: var(--gray-50);
+}
+
+/* === RESPONSIVE - MOBILE FIRST === */
+@media (max-width: 640px) {
+    :root {
+        --spacing-md: 0.875rem;
+        --spacing-lg: 1.25rem;
+    }
+
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .tab-btn {
+        font-size: 0.875rem;
+        padding: var(--spacing-md);
+        min-width: auto;
+        flex: 1;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+
+    h3 {
+        font-size: 1.125rem;
+    }
+
+    button,
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Tablas responsive en móvil */
+    table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+    /* Tablet */
+    .container {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+@media (min-width: 1025px) {
+    /* Desktop */
+    .container {
+        max-width: 1280px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* === PWA INSTALL === */
+#installBtn {
+    transition: all 0.3s ease;
+}
+
+#installBtn:hover {
+    transform: scale(1.05);
+}
+
+/* === MODALES === */
+.modal-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* === COMPARACIÓN DE CHISTES === */
+.comparison-card {
+    border: 2px solid var(--gray-200);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    background-color: white;
+}
+
+.similarity-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.similarity-high {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
+
+.similarity-medium {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+.similarity-low {
+    background-color: #FEE2E2;
+    color: #991B1B;
+}
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus visible para navegación por teclado */
+:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* === DARK MODE PREP (futuro) === */
+@media (prefers-color-scheme: dark) {
+    /* Dejar preparado para dark mode en el futuro */
 }

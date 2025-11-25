@@ -276,7 +276,183 @@ class BitacoraRepository:
             raise
 
 
+class AnalisisChistesRepository:
+    """Repositorio para gestionar análisis de chistes de otros comediantes"""
+
+    def __init__(self):
+        self.client = SupabaseClient.get_client()
+        self.table = 'analisis_chistes'
+
+    def create_analisis(self, analisis_data: Dict[str, Any]) -> Dict:
+        """Crea un nuevo análisis de chiste"""
+        try:
+            result = self.client.table(self.table).insert(analisis_data).execute()
+            logger.info(f"Análisis de chiste created: {result.data[0]['id']}")
+            return result.data[0]
+        except Exception as e:
+            logger.error(f"Error creating análisis de chiste: {e}")
+            raise
+
+    def get_analisis(self, analisis_id: str) -> Optional[Dict]:
+        """Obtiene un análisis por ID"""
+        try:
+            result = self.client.table(self.table)\
+                .select('*')\
+                .eq('id', analisis_id)\
+                .eq('eliminado', False)\
+                .execute()
+
+            return result.data[0] if result.data else None
+        except Exception as e:
+            logger.error(f"Error getting análisis {analisis_id}: {e}")
+            raise
+
+    def get_all_analisis(self, filters: Optional[Dict] = None) -> List[Dict]:
+        """Obtiene todos los análisis con filtros opcionales"""
+        try:
+            query = self.client.table(self.table)\
+                .select('*')\
+                .eq('eliminado', False)\
+                .order('fecha_creacion', desc=True)
+
+            # Aplicar filtros si existen
+            if filters:
+                if 'comediante' in filters:
+                    query = query.ilike('comediante', f"%{filters['comediante']}%")
+                if 'concepto_categoria' in filters:
+                    query = query.eq('concepto_categoria', filters['concepto_categoria'])
+                if 'perspectiva_categoria' in filters:
+                    query = query.eq('perspectiva_categoria', filters['perspectiva_categoria'])
+                if 'limit' in filters:
+                    query = query.limit(filters['limit'])
+
+            result = query.execute()
+            return result.data
+        except Exception as e:
+            logger.error(f"Error getting análisis: {e}")
+            raise
+
+    def update_analisis(self, analisis_id: str, updates: Dict[str, Any]) -> Dict:
+        """Actualiza un análisis"""
+        try:
+            result = self.client.table(self.table)\
+                .update(updates)\
+                .eq('id', analisis_id)\
+                .execute()
+
+            logger.info(f"Análisis updated: {analisis_id}")
+            return result.data[0]
+        except Exception as e:
+            logger.error(f"Error updating análisis {analisis_id}: {e}")
+            raise
+
+    def delete_analisis(self, analisis_id: str, soft_delete: bool = True) -> bool:
+        """Elimina un análisis (soft delete por defecto)"""
+        try:
+            if soft_delete:
+                self.client.table(self.table)\
+                    .update({'eliminado': True})\
+                    .eq('id', analisis_id)\
+                    .execute()
+            else:
+                self.client.table(self.table)\
+                    .delete()\
+                    .eq('id', analisis_id)\
+                    .execute()
+
+            logger.info(f"Análisis deleted: {analisis_id} (soft={soft_delete})")
+            return True
+        except Exception as e:
+            logger.error(f"Error deleting análisis {analisis_id}: {e}")
+            raise
+
+    def search_similar(self, concepto_categoria: str = None, perspectiva_categoria: str = None,
+                       formulacion_categoria: str = None, limit: int = 10) -> List[Dict]:
+        """Busca análisis similares basados en categorías"""
+        try:
+            query = self.client.table(self.table)\
+                .select('*')\
+                .eq('eliminado', False)
+
+            if concepto_categoria:
+                query = query.eq('concepto_categoria', concepto_categoria)
+            if perspectiva_categoria:
+                query = query.eq('perspectiva_categoria', perspectiva_categoria)
+            if formulacion_categoria:
+                query = query.eq('formulacion_categoria', formulacion_categoria)
+
+            result = query.order('fecha_creacion', desc=True).limit(limit).execute()
+            return result.data
+        except Exception as e:
+            logger.error(f"Error searching similar análisis: {e}")
+            raise
+
+
+class CategoriasRepository:
+    """Repositorio para gestionar categorías dinámicas"""
+
+    def __init__(self):
+        self.client = SupabaseClient.get_client()
+        self.table = 'categorias_dinamicas'
+
+    def get_categorias_by_tipo(self, tipo: str) -> List[Dict]:
+        """Obtiene todas las categorías de un tipo específico"""
+        try:
+            result = self.client.table(self.table)\
+                .select('*')\
+                .eq('tipo', tipo)\
+                .order('orden')\
+                .execute()
+
+            return result.data
+        except Exception as e:
+            logger.error(f"Error getting categorías for tipo {tipo}: {e}")
+            raise
+
+    def create_categoria(self, tipo: str, valor: str, orden: int = 0) -> Dict:
+        """Crea una nueva categoría"""
+        try:
+            result = self.client.table(self.table).insert({
+                'tipo': tipo,
+                'valor': valor,
+                'usuario_creado': True,
+                'orden': orden
+            }).execute()
+
+            logger.info(f"Categoría created: {tipo} - {valor}")
+            return result.data[0]
+        except Exception as e:
+            # Si ya existe (violación de UNIQUE constraint), retornar la existente
+            if 'duplicate key' in str(e).lower():
+                result = self.client.table(self.table)\
+                    .select('*')\
+                    .eq('tipo', tipo)\
+                    .eq('valor', valor)\
+                    .execute()
+                return result.data[0] if result.data else None
+
+            logger.error(f"Error creating categoría: {e}")
+            raise
+
+    def delete_categoria(self, categoria_id: str) -> bool:
+        """Elimina una categoría (solo si fue creada por usuario)"""
+        try:
+            self.client.table(self.table)\
+                .delete()\
+                .eq('id', categoria_id)\
+                .eq('usuario_creado', True)\
+                .execute()
+
+            logger.info(f"Categoría deleted: {categoria_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error deleting categoría {categoria_id}: {e}")
+            raise
+
+
 # Instancias globales
 jokes_repo = JokesRepository()
 analysis_repo = AnalysisRepository()
 bitacora_repo = BitacoraRepository()
+analisis_chistes_repo = AnalisisChistesRepository()
+categorias_repo = CategoriasRepository()

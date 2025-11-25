@@ -2,7 +2,7 @@
 Rutas para gestión de chistes (CRUD)
 """
 from flask import Blueprint, request, jsonify
-from src.services.supabase_client import jokes_repo
+from src.services.supabase_client import jokes_repo, analisis_chistes_repo
 from src.services.ai_agent import ai_agent
 import logging
 
@@ -195,6 +195,89 @@ def mark_as_used(joke_id):
 
     except Exception as e:
         logger.error(f"Error marking joke {joke_id} as used: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@jokes_bp.route('/comparar', methods=['POST'])
+def comparar_con_analisis():
+    """
+    Compara un chiste con análisis guardados para encontrar estructuras similares
+    Body: { "joke_id": "uuid" } o { "concepto_categoria": "...", "perspectiva_categoria": "...", ... }
+    """
+    try:
+        data = request.get_json()
+
+        # Si se proporciona joke_id, obtener sus categorías
+        if data.get('joke_id'):
+            joke = jokes_repo.get_joke(data['joke_id'])
+            if not joke:
+                return jsonify({
+                    'success': False,
+                    'error': 'Chiste no encontrado'
+                }), 404
+
+            concepto_categoria = joke.get('concepto_categoria')
+            perspectiva_categoria = joke.get('perspectiva_categoria')
+            formulacion_categoria = joke.get('formulacion_categoria')
+        else:
+            # O usar las categorías proporcionadas directamente
+            concepto_categoria = data.get('concepto_categoria')
+            perspectiva_categoria = data.get('perspectiva_categoria')
+            formulacion_categoria = data.get('formulacion_categoria')
+
+        # Buscar análisis similares
+        similares = analisis_chistes_repo.search_similar(
+            concepto_categoria=concepto_categoria,
+            perspectiva_categoria=perspectiva_categoria,
+            formulacion_categoria=formulacion_categoria,
+            limit=data.get('limit', 10)
+        )
+
+        # Calcular score de similitud para cada resultado
+        results_with_score = []
+        for analisis in similares:
+            score = 0
+            matches = {
+                'concepto': False,
+                'perspectiva': False,
+                'formulacion': False
+            }
+
+            if concepto_categoria and analisis.get('concepto_categoria') == concepto_categoria:
+                score += 3
+                matches['concepto'] = True
+            if perspectiva_categoria and analisis.get('perspectiva_categoria') == perspectiva_categoria:
+                score += 2
+                matches['perspectiva'] = True
+            if formulacion_categoria and analisis.get('formulacion_categoria') == formulacion_categoria:
+                score += 1
+                matches['formulacion'] = True
+
+            results_with_score.append({
+                **analisis,
+                'similarity_score': score,
+                'matches': matches
+            })
+
+        # Ordenar por score
+        results_with_score.sort(key=lambda x: x['similarity_score'], reverse=True)
+
+        return jsonify({
+            'success': True,
+            'data': results_with_score,
+            'count': len(results_with_score),
+            'search_criteria': {
+                'concepto_categoria': concepto_categoria,
+                'perspectiva_categoria': perspectiva_categoria,
+                'formulacion_categoria': formulacion_categoria
+            }
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error comparing joke: {e}")
         return jsonify({
             'success': False,
             'error': str(e)

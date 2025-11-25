@@ -47,3 +47,4 @@ exports/
 !README.md
 !CLAUDE.md
 !SETUP_SUPABASE.md
+!DEPLOY_RAILWAY.md

@@ -46,3 +46,4 @@ exports/
 *.md
 !README.md
 !CLAUDE.md
+!SETUP_SUPABASE.md

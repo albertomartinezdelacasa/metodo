@@ -60,10 +60,7 @@ def create_app():
     # Rutas básicas
     @app.route('/')
     def index():
-        """Página principal - requiere autenticación"""
-        # Verificar si está autenticado
-        if not session.get('authenticated', False):
-            return render_template('login.html')
+        """Página principal - sin autenticación"""
         return render_template('index.html')
 
     @app.route('/health')

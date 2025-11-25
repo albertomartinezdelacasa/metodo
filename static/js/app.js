@@ -1206,6 +1206,28 @@ function initAnalisisTab() {
 }
 
 // ====================
+// AUTENTICACIÓN
+// ====================
+
+// Logout
+async function logout() {
+    if (!confirm('¿Seguro que quieres cerrar sesión?')) return;
+
+    try {
+        const response = await apiRequest('/api/auth/logout', {
+            method: 'POST'
+        });
+
+        if (response.success) {
+            window.location.href = '/';
+        }
+    } catch (error) {
+        console.error('Logout error:', error);
+        window.location.href = '/';
+    }
+}
+
+// ====================
 // INITIALIZATION
 // ====================
 
@@ -1218,6 +1240,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initAdminPanel();
     initAnalisisForm();
     initAnalisisTab();
+
+    // Logout button
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
+    }
 
     console.log('Método Comedia - App initialized ✨');
 });

@@ -1,10 +1,12 @@
 """
 Aplicación Flask principal - Método Comedia
 """
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, session, redirect, url_for
 from flask_cors import CORS
 from src.config import config
 import logging
+import os
+from datetime import timedelta
 
 # Configurar logging
 logging.basicConfig(
@@ -24,8 +26,13 @@ def create_app():
     # Configuración
     app.config.from_object(config)
 
+    # Configuración de sesión
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'metodo-comedia-secret-2024')
+    app.config['SESSION_TYPE'] = 'filesystem'
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
+
     # CORS
-    CORS(app, origins=config.CORS_ORIGINS)
+    CORS(app, origins=config.CORS_ORIGINS, supports_credentials=True)
 
     # Validar configuración
     try:
@@ -41,17 +48,22 @@ def create_app():
     from src.routes.bitacora import bitacora_bp
     from src.routes.analisis_chistes import analisis_chistes_bp
     from src.routes.categorias import categorias_bp
+    from src.routes.auth import auth_bp
 
     app.register_blueprint(jokes_bp)
     app.register_blueprint(ai_bp)
     app.register_blueprint(bitacora_bp)
     app.register_blueprint(analisis_chistes_bp, url_prefix='/api/analisis-chistes')
     app.register_blueprint(categorias_bp, url_prefix='/api/categorias')
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
 
     # Rutas básicas
     @app.route('/')
     def index():
-        """Página principal"""
+        """Página principal - requiere autenticación"""
+        # Verificar si está autenticado
+        if not session.get('authenticated', False):
+            return render_template('login.html')
         return render_template('index.html')
 
     @app.route('/health')

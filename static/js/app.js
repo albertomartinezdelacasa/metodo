@@ -631,33 +631,33 @@ function viewBibliotecaItem(id) {
     const remateLines = analisis.remate ? analisis.remate.split('\n') : [];
 
     const detailHTML = `
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="this.remove()">
-            <div class="glass rounded-2xl p-8 max-w-3xl max-h-[90vh] overflow-y-auto m-4" onclick="event.stopPropagation()">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <h2 class="text-2xl font-bold text-blue-800 mb-2">${analisis.titulo_referencia || 'Sin título'}</h2>
-                        <p class="text-gray-600">🎭 ${analisis.comediante || 'Comediante desconocido'}</p>
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4" onclick="this.remove()">
+            <div class="glass rounded-2xl p-4 sm:p-6 md:p-8 w-full max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+                <div class="flex justify-between items-start mb-4 sm:mb-6 gap-2">
+                    <div class="flex-1 min-w-0">
+                        <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-blue-800 mb-1 sm:mb-2 break-words">${analisis.titulo_referencia || 'Sin título'}</h2>
+                        <p class="text-gray-600 text-sm sm:text-base">🎭 ${analisis.comediante || 'Comediante desconocido'}</p>
                     </div>
-                    <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700 text-3xl">×</button>
+                    <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700 text-2xl sm:text-3xl flex-shrink-0 w-8 h-8 flex items-center justify-center">×</button>
                 </div>
 
-                <div class="space-y-6">
+                <div class="space-y-3 sm:space-y-4 md:space-y-6">
                     <!-- Premisa -->
-                    <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-                        <h3 class="text-lg font-bold text-blue-800 mb-3">📋 Premisa</h3>
+                    <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-3 sm:p-4">
+                        <h3 class="text-base sm:text-lg font-bold text-blue-800 mb-2 sm:mb-3">📋 Premisa</h3>
                         ${premisaLines.map((line, i) => `<p class="text-sm mb-1"><strong>Línea ${i+1}:</strong> ${line}</p>`).join('')}
                         ${analisis.elemento_mecanico ? `<p class="text-xs text-gray-600 mt-2"><strong>Elemento Mecánico:</strong> ${analisis.elemento_mecanico}</p>` : ''}
                     </div>
 
                     <!-- Ruptura -->
-                    <div class="bg-orange-50 border-2 border-orange-200 rounded-xl p-4">
-                        <h3 class="text-lg font-bold text-orange-600 mb-3">💥 Ruptura</h3>
+                    <div class="bg-orange-50 border-2 border-orange-200 rounded-xl p-3 sm:p-4">
+                        <h3 class="text-base sm:text-lg font-bold text-orange-600 mb-2 sm:mb-3">💥 Ruptura</h3>
                         ${rupturaLines.map((line, i) => `<p class="text-sm mb-1"><strong>Línea ${i+1}:</strong> ${line}</p>`).join('')}
                     </div>
 
                     <!-- Remate -->
-                    <div class="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-4">
-                        <h3 class="text-lg font-bold text-emerald-600 mb-3">🎯 Remate</h3>
+                    <div class="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-3 sm:p-4">
+                        <h3 class="text-base sm:text-lg font-bold text-emerald-600 mb-2 sm:mb-3">🎯 Remate</h3>
                         ${remateLines.map((line, i) => `<p class="text-sm mb-1"><strong>Línea ${i+1}:</strong> ${line}</p>`).join('')}
                     </div>
 
@@ -699,13 +699,13 @@ function viewBibliotecaItem(id) {
                     ` : ''}
                 </div>
 
-                <div class="mt-6 flex justify-end gap-3">
+                <div class="mt-4 sm:mt-6 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
                     <button onclick="editBibliotecaItem('${analisis.id}'); this.closest('.fixed').remove();"
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
+                        class="px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm sm:text-base order-1 sm:order-1">
                         ✏️ Editar
                     </button>
                     <button onclick="this.closest('.fixed').remove()"
-                        class="px-6 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 font-semibold">
+                        class="px-4 sm:px-6 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 font-semibold text-sm sm:text-base order-2 sm:order-2">
                         Cerrar
                     </button>
                 </div>

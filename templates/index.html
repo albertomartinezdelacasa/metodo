@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <!-- Meta tags para PWA -->
     <meta name="description" content="Analiza y mejora tus chistes de stand-up con IA">
@@ -172,31 +172,31 @@
         <!-- Tabs -->
         <div class="glass rounded-2xl shadow-xl mb-6">
             <div class="flex border-b overflow-x-auto">
-                <button class="tab-btn active px-6 py-3 font-semibold whitespace-nowrap smooth-transition" data-tab="analisis">
-                    🔍 Análisis
+                <button class="tab-btn active px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold whitespace-nowrap smooth-transition" data-tab="analisis">
+                    🔍 <span class="hidden sm:inline">Análisis</span><span class="sm:hidden">Análisis</span>
                 </button>
-                <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap smooth-transition" data-tab="biblioteca">
-                    📚 Biblioteca
+                <button class="tab-btn px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold whitespace-nowrap smooth-transition" data-tab="biblioteca">
+                    📚 <span class="hidden sm:inline">Biblioteca</span><span class="sm:hidden">Biblio</span>
                 </button>
-                <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap smooth-transition" data-tab="write">
-                    ✍️ Mis Chistes
+                <button class="tab-btn px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold whitespace-nowrap smooth-transition" data-tab="write">
+                    ✍️ <span class="hidden sm:inline">Mis Chistes</span><span class="sm:hidden">Chistes</span>
                 </button>
-                <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap smooth-transition" data-tab="bitacora">
-                    📔 Bitácora
+                <button class="tab-btn px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold whitespace-nowrap smooth-transition" data-tab="bitacora">
+                    📔 <span class="hidden sm:inline">Bitácora</span><span class="sm:hidden">Notas</span>
                 </button>
-                <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap smooth-transition" data-tab="brainstorm">
-                    💡 Ideas
+                <button class="tab-btn px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold whitespace-nowrap smooth-transition" data-tab="brainstorm">
+                    💡 <span class="hidden sm:inline">Ideas</span><span class="sm:hidden">Ideas</span>
                 </button>
-                <button class="tab-btn px-6 py-3 font-semibold whitespace-nowrap smooth-transition" data-tab="admin">
-                    ⚙️ Gestión
+                <button class="tab-btn px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold whitespace-nowrap smooth-transition" data-tab="admin">
+                    ⚙️ <span class="hidden sm:inline">Gestión</span><span class="sm:hidden">Admin</span>
                 </button>
             </div>
         </div>
 
         <!-- Tab: Análisis de Chistes (Wizard) -->
         <div id="tab-analisis" class="tab-content">
-            <div class="glass rounded-2xl shadow-xl p-6">
-                <h2 class="text-3xl font-bold mb-2 text-blue-800">🔍 Análisis de Chistes</h2>
+            <div class="glass rounded-2xl shadow-xl p-4 sm:p-6">
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold mb-2 text-blue-800">🔍 Análisis de Chistes</h2>
                 <p class="text-gray-600 mb-6">Estudia chistes de otros comediantes paso a paso</p>
 
                 <!-- Progress Bar -->
@@ -213,9 +213,9 @@
                 <form id="analisisWizardForm">
                     <!-- Step 1: Identificación -->
                     <div class="wizard-step active" data-step="1">
-                        <div class="text-center mb-6">
-                            <div class="text-6xl mb-4">🎭</div>
-                            <h3 class="text-2xl font-bold mb-2">Identificación del Chiste</h3>
+                        <div class="text-center mb-4 sm:mb-6">
+                            <div class="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4">🎭</div>
+                            <h3 class="text-lg sm:text-xl md:text-2xl font-bold mb-2">Identificación del Chiste</h3>
                             <p class="text-gray-600">¿De quién es este chiste?</p>
                         </div>
 
@@ -244,14 +244,14 @@
 
                     <!-- Step 2: Premisa -->
                     <div class="wizard-step" data-step="2">
-                        <div class="text-center mb-6">
-                            <div class="text-6xl mb-4">📋</div>
-                            <h3 class="text-2xl font-bold mb-2 text-blue-800">Premisa (Setup)</h3>
+                        <div class="text-center mb-4 sm:mb-6">
+                            <div class="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4">📋</div>
+                            <h3 class="text-lg sm:text-xl md:text-2xl font-bold mb-2 text-blue-800">Premisa (Setup)</h3>
                             <p class="text-gray-600">Escribe cada línea de la premisa por separado</p>
                         </div>
 
-                        <div class="max-w-2xl mx-auto space-y-4">
-                            <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+                        <div class="max-w-2xl mx-auto space-y-3 sm:space-y-4">
+                            <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 sm:p-6">
                                 <h4 class="font-bold mb-4 text-blue-800">Líneas de la Premisa</h4>
                                 <div id="premisaLinesContainer">
                                     <!-- Dynamic lines will be added here -->
@@ -271,11 +271,11 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-between mt-6">
-                            <button type="button" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold" onclick="prevStep()">
+                        <div class="flex justify-between mt-4 sm:mt-6 gap-2">
+                            <button type="button" class="px-4 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold text-sm sm:text-base" onclick="prevStep()">
                                 ← Atrás
                             </button>
-                            <button type="button" class="btn-primary" onclick="nextStep()">
+                            <button type="button" class="btn-primary text-sm sm:text-base" onclick="nextStep()">
                                 Siguiente →
                             </button>
                         </div>
@@ -283,15 +283,15 @@
 
                     <!-- Step 3: Ruptura -->
                     <div class="wizard-step" data-step="3">
-                        <div class="text-center mb-6">
-                            <div class="text-6xl mb-4">💥</div>
-                            <h3 class="text-2xl font-bold mb-2 text-orange-600">Ruptura</h3>
+                        <div class="text-center mb-4 sm:mb-6">
+                            <div class="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4">💥</div>
+                            <h3 class="text-lg sm:text-xl md:text-2xl font-bold mb-2 text-orange-600">Ruptura</h3>
                             <p class="text-gray-600">El momento donde se rompe la expectativa</p>
                         </div>
 
                         <div class="max-w-2xl mx-auto">
-                            <div class="bg-orange-50 border-2 border-orange-200 rounded-xl p-6">
-                                <h4 class="font-bold mb-4 text-orange-800">Líneas de la Ruptura</h4>
+                            <div class="bg-orange-50 border-2 border-orange-200 rounded-xl p-4 sm:p-6">
+                                <h4 class="font-bold mb-3 sm:mb-4 text-orange-800">Líneas de la Ruptura</h4>
                                 <div id="rupturaLinesContainer">
                                     <!-- Dynamic lines will be added here -->
                                 </div>
@@ -301,11 +301,11 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-between mt-6">
-                            <button type="button" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold" onclick="prevStep()">
+                        <div class="flex justify-between mt-4 sm:mt-6 gap-2">
+                            <button type="button" class="px-4 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold text-sm sm:text-base" onclick="prevStep()">
                                 ← Atrás
                             </button>
-                            <button type="button" class="btn-primary" onclick="nextStep()">
+                            <button type="button" class="btn-primary text-sm sm:text-base" onclick="nextStep()">
                                 Siguiente →
                             </button>
                         </div>
@@ -313,15 +313,15 @@
 
                     <!-- Step 4: Remate -->
                     <div class="wizard-step" data-step="4">
-                        <div class="text-center mb-6">
-                            <div class="text-6xl mb-4">🎯</div>
-                            <h3 class="text-2xl font-bold mb-2 text-emerald-600">Remate (Punchline)</h3>
+                        <div class="text-center mb-4 sm:mb-6">
+                            <div class="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4">🎯</div>
+                            <h3 class="text-lg sm:text-xl md:text-2xl font-bold mb-2 text-emerald-600">Remate (Punchline)</h3>
                             <p class="text-gray-600">El cierre que genera la risa</p>
                         </div>
 
                         <div class="max-w-2xl mx-auto">
-                            <div class="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-6">
-                                <h4 class="font-bold mb-4 text-emerald-800">Líneas del Remate</h4>
+                            <div class="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-4 sm:p-6">
+                                <h4 class="font-bold mb-3 sm:mb-4 text-emerald-800">Líneas del Remate</h4>
                                 <div id="remateLinesContainer">
                                     <!-- Dynamic lines will be added here -->
                                 </div>
@@ -331,11 +331,11 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-between mt-6">
-                            <button type="button" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold" onclick="prevStep()">
+                        <div class="flex justify-between mt-4 sm:mt-6 gap-2">
+                            <button type="button" class="px-4 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold text-sm sm:text-base" onclick="prevStep()">
                                 ← Atrás
                             </button>
-                            <button type="button" class="btn-primary" onclick="nextStep()">
+                            <button type="button" class="btn-primary text-sm sm:text-base" onclick="nextStep()">
                                 Siguiente →
                             </button>
                         </div>
@@ -343,15 +343,15 @@
 
                     <!-- Step 5: Perspectiva y Concepto -->
                     <div class="wizard-step" data-step="5">
-                        <div class="text-center mb-6">
-                            <div class="text-6xl mb-4">👁️</div>
-                            <h3 class="text-2xl font-bold mb-2 text-indigo-700">Perspectiva y Concepto</h3>
+                        <div class="text-center mb-4 sm:mb-6">
+                            <div class="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4">👁️</div>
+                            <h3 class="text-lg sm:text-xl md:text-2xl font-bold mb-2 text-indigo-700">Perspectiva y Concepto</h3>
                             <p class="text-gray-600">El punto de vista y la idea central</p>
                         </div>
 
-                        <div class="max-w-2xl mx-auto space-y-6">
-                            <div class="bg-indigo-50 border-2 border-indigo-200 rounded-xl p-6">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="max-w-2xl mx-auto space-y-4 sm:space-y-6">
+                            <div class="bg-indigo-50 border-2 border-indigo-200 rounded-xl p-4 sm:p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
                                     <div>
                                         <label class="block text-sm font-semibold mb-2">Categoría de Perspectiva</label>
                                         <select id="analisisPerspectivaCategoria"
@@ -376,9 +376,9 @@
                                 </div>
                             </div>
 
-                            <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6">
-                                <h4 class="font-bold mb-4 text-purple-800">Concepto</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-4 sm:p-6">
+                                <h4 class="font-bold mb-3 sm:mb-4 text-purple-800">Concepto</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                                     <div>
                                         <label class="block text-sm font-semibold mb-2">Concepto Principal</label>
                                         <input type="text" id="analisisConcepto"
@@ -396,11 +396,11 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-between mt-6">
-                            <button type="button" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold" onclick="prevStep()">
+                        <div class="flex justify-between mt-4 sm:mt-6 gap-2">
+                            <button type="button" class="px-4 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold text-sm sm:text-base" onclick="prevStep()">
                                 ← Atrás
                             </button>
-                            <button type="button" class="btn-primary" onclick="nextStep()">
+                            <button type="button" class="btn-primary text-sm sm:text-base" onclick="nextStep()">
                                 Siguiente →
                             </button>
                         </div>
@@ -408,22 +408,22 @@
 
                     <!-- Step 6: Formulación y Notas -->
                     <div class="wizard-step" data-step="6">
-                        <div class="text-center mb-6">
-                            <div class="text-6xl mb-4">📝</div>
-                            <h3 class="text-2xl font-bold mb-2 text-purple-700">Formulación y Notas</h3>
+                        <div class="text-center mb-4 sm:mb-6">
+                            <div class="text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4">📝</div>
+                            <h3 class="text-lg sm:text-xl md:text-2xl font-bold mb-2 text-purple-700">Formulación y Notas</h3>
                             <p class="text-gray-600">Detalles finales del análisis</p>
                         </div>
 
-                        <div class="max-w-2xl mx-auto space-y-6">
-                            <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6">
+                        <div class="max-w-2xl mx-auto space-y-4 sm:space-y-6">
+                            <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4 sm:p-6">
                                 <h4 class="font-bold mb-4 text-yellow-800">🗺️ Desarrollo de la Idea</h4>
                                 <textarea id="analisisDesarrolloIdea" rows="4"
                                     class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-yellow-500"
                                     placeholder="Describe el proceso creativo. ¿Cómo conecta los conceptos?"></textarea>
                             </div>
 
-                            <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6">
-                                <h4 class="font-bold mb-4 text-purple-800">📝 Formulación</h4>
+                            <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-4 sm:p-6">
+                                <h4 class="font-bold mb-3 sm:mb-4 text-purple-800">📝 Formulación</h4>
                                 <div class="space-y-3">
                                     <div>
                                         <label class="block text-sm font-semibold mb-2">Categoría de Formulación</label>
@@ -450,11 +450,11 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-between mt-6">
-                            <button type="button" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold" onclick="prevStep()">
+                        <div class="flex flex-col sm:flex-row justify-between mt-4 sm:mt-6 gap-3 sm:gap-2">
+                            <button type="button" class="px-4 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold text-sm sm:text-base order-2 sm:order-1" onclick="prevStep()">
                                 ← Atrás
                             </button>
-                            <button type="submit" class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 shadow-lg">
+                            <button type="submit" class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 shadow-lg text-sm sm:text-base order-1 sm:order-2">
                                 💾 Guardar Análisis
                             </button>
                         </div>
@@ -465,33 +465,33 @@
 
         <!-- Tab: Biblioteca -->
         <div id="tab-biblioteca" class="tab-content hidden">
-            <div class="glass rounded-2xl shadow-xl p-6">
-                <div class="flex justify-between items-center mb-6">
+            <div class="glass rounded-2xl shadow-xl p-4 sm:p-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3">
                     <div>
-                        <h2 class="text-3xl font-bold text-blue-800">📚 Biblioteca</h2>
-                        <p class="text-gray-600 mt-1">Todos tus análisis guardados</p>
+                        <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-blue-800">📚 Biblioteca</h2>
+                        <p class="text-gray-600 mt-1 text-sm sm:text-base">Todos tus análisis guardados</p>
                     </div>
-                    <button onclick="loadBiblioteca()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-semibold">
+                    <button onclick="loadBiblioteca()" class="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 font-semibold text-sm sm:text-base w-full sm:w-auto">
                         🔄 Recargar
                     </button>
                 </div>
 
                 <!-- Filters -->
-                <div class="mb-6 flex flex-wrap gap-3">
+                <div class="mb-4 sm:mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
                     <input type="text" id="filterBibliotecaComediante" placeholder="Buscar por comediante"
-                        class="px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        class="px-3 sm:px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base">
                     <input type="text" id="filterBibliotecaTitulo" placeholder="Buscar por título"
-                        class="px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    <select id="filterBibliotecaConcepto" class="px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        class="px-3 sm:px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base">
+                    <select id="filterBibliotecaConcepto" class="px-3 sm:px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base">
                         <option value="">Todos los conceptos</option>
                     </select>
-                    <button onclick="applyBibliotecaFilters()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                    <button onclick="applyBibliotecaFilters()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm sm:text-base">
                         🔍 Filtrar
                     </button>
                 </div>
 
                 <!-- Biblioteca Grid -->
-                <div id="bibliotecaGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div id="bibliotecaGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                     <!-- Dynamic cards will be added here -->
                 </div>
 
@@ -505,8 +505,8 @@
 
         <!-- Tab: Mis Chistes -->
         <div id="tab-write" class="tab-content hidden">
-            <div class="glass rounded-2xl shadow-xl p-6">
-                <h2 class="text-2xl font-bold mb-4">Mis Chistes</h2>
+            <div class="glass rounded-2xl shadow-xl p-4 sm:p-6">
+                <h2 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Mis Chistes</h2>
 
                 <form id="jokeForm" class="space-y-4">
                     <div>
@@ -584,20 +584,20 @@
                             placeholder="Notas personales..."></textarea>
                     </div>
 
-                    <div class="flex gap-3 flex-wrap">
-                        <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700">
+                    <div class="grid grid-cols-2 sm:flex gap-2 sm:gap-3 sm:flex-wrap">
+                        <button type="submit" class="bg-red-600 text-white px-4 sm:px-6 py-2 rounded-lg font-semibold hover:bg-red-700 text-sm sm:text-base col-span-2 sm:col-span-1">
                             💾 Guardar Chiste
                         </button>
-                        <button type="button" id="analyzeBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">
-                            🤖 Analizar con IA
+                        <button type="button" id="analyzeBtn" class="bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 text-sm sm:text-base">
+                            🤖 Analizar IA
                         </button>
-                        <button type="button" id="analyzeConceptsBtn" class="bg-purple-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-purple-700">
-                            🧠 Analizar Conceptos
+                        <button type="button" id="analyzeConceptsBtn" class="bg-purple-600 text-white px-4 sm:px-6 py-2 rounded-lg font-semibold hover:bg-purple-700 text-sm sm:text-base">
+                            🧠 Conceptos
                         </button>
-                        <button type="button" id="analyzeRuptureBtn" class="bg-orange-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-orange-700">
-                            💥 Analizar Ruptura
+                        <button type="button" id="analyzeRuptureBtn" class="bg-orange-600 text-white px-4 sm:px-6 py-2 rounded-lg font-semibold hover:bg-orange-700 text-sm sm:text-base">
+                            💥 Ruptura
                         </button>
-                        <button type="button" id="improveBtn" class="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700">
+                        <button type="button" id="improveBtn" class="bg-green-600 text-white px-4 sm:px-6 py-2 rounded-lg font-semibold hover:bg-green-700 text-sm sm:text-base col-span-2 sm:col-span-1">
                             ✨ Sugerir Mejoras
                         </button>
                     </div>
@@ -613,10 +613,10 @@
 
         <!-- Tab: Bitácora -->
         <div id="tab-bitacora" class="tab-content hidden">
-            <div class="glass rounded-2xl shadow-xl p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold">📔 Bitácora</h2>
-                    <button id="newEntryBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-semibold">
+            <div class="glass rounded-2xl shadow-xl p-4 sm:p-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 sm:mb-4 gap-3">
+                    <h2 class="text-xl sm:text-2xl font-bold">📔 Bitácora</h2>
+                    <button id="newEntryBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-semibold text-sm sm:text-base w-full sm:w-auto">
                         ➕ Nueva Entrada
                     </button>
                 </div>
@@ -685,8 +685,8 @@
 
         <!-- Tab: Brainstorm -->
         <div id="tab-brainstorm" class="tab-content hidden">
-            <div class="glass rounded-2xl shadow-xl p-6">
-                <h2 class="text-2xl font-bold mb-4">💡 Generar Ideas</h2>
+            <div class="glass rounded-2xl shadow-xl p-4 sm:p-6">
+                <h2 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">💡 Generar Ideas</h2>
 
                 <form id="brainstormForm" class="space-y-4">
                     <div>
@@ -721,12 +721,12 @@
 
         <!-- Tab: Gestión (Admin Panel) -->
         <div id="tab-admin" class="tab-content hidden">
-            <div class="glass rounded-2xl shadow-xl p-6">
-                <h2 class="text-2xl font-bold mb-4">⚙️ Panel de Gestión</h2>
-                <p class="text-gray-600 mb-6">Administra tu proyecto desde el móvil usando GitHub Issues</p>
+            <div class="glass rounded-2xl shadow-xl p-4 sm:p-6">
+                <h2 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">⚙️ Panel de Gestión</h2>
+                <p class="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">Administra tu proyecto desde el móvil</p>
 
                 <!-- Quick Actions -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
                     <div class="border-2 border-blue-200 rounded-lg p-4 bg-blue-50 card-hover">
                         <h3 class="font-bold text-lg mb-2 flex items-center">
                             🧪 Tests
@@ -801,24 +801,24 @@
                 </div>
 
                 <!-- Database Stats -->
-                <div class="border-t pt-6">
-                    <h3 class="font-bold text-lg mb-4">📊 Estadísticas del Sistema</h3>
-                    <div id="systemStats" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="text-center p-3 bg-gray-50 rounded-lg">
-                            <div class="text-2xl font-bold text-red-600" id="totalJokes">-</div>
-                            <div class="text-sm text-gray-600">Chistes</div>
+                <div class="border-t pt-4 sm:pt-6">
+                    <h3 class="font-bold text-base sm:text-lg mb-3 sm:mb-4">📊 Estadísticas del Sistema</h3>
+                    <div id="systemStats" class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+                        <div class="text-center p-2 sm:p-3 bg-gray-50 rounded-lg">
+                            <div class="text-xl sm:text-2xl font-bold text-red-600" id="totalJokes">-</div>
+                            <div class="text-xs sm:text-sm text-gray-600">Chistes</div>
                         </div>
-                        <div class="text-center p-3 bg-gray-50 rounded-lg">
-                            <div class="text-2xl font-bold text-blue-600" id="totalAnalysis">-</div>
-                            <div class="text-sm text-gray-600">Análisis IA</div>
+                        <div class="text-center p-2 sm:p-3 bg-gray-50 rounded-lg">
+                            <div class="text-xl sm:text-2xl font-bold text-blue-600" id="totalAnalysis">-</div>
+                            <div class="text-xs sm:text-sm text-gray-600">Análisis IA</div>
                         </div>
-                        <div class="text-center p-3 bg-gray-50 rounded-lg">
-                            <div class="text-2xl font-bold text-green-600" id="avgRating">-</div>
-                            <div class="text-sm text-gray-600">Rating Prom.</div>
+                        <div class="text-center p-2 sm:p-3 bg-gray-50 rounded-lg">
+                            <div class="text-xl sm:text-2xl font-bold text-green-600" id="avgRating">-</div>
+                            <div class="text-xs sm:text-sm text-gray-600">Rating Prom.</div>
                         </div>
-                        <div class="text-center p-3 bg-gray-50 rounded-lg">
-                            <div class="text-2xl font-bold text-purple-600" id="totalShows">-</div>
-                            <div class="text-sm text-gray-600">Shows</div>
+                        <div class="text-center p-2 sm:p-3 bg-gray-50 rounded-lg">
+                            <div class="text-xl sm:text-2xl font-bold text-purple-600" id="totalShows">-</div>
+                            <div class="text-xs sm:text-sm text-gray-600">Shows</div>
                         </div>
                     </div>
                     <button onclick="loadSystemStats()" class="mt-4 text-sm text-blue-600 hover:underline">
@@ -827,20 +827,20 @@
                 </div>
 
                 <!-- Quick Links -->
-                <div class="border-t pt-6 mt-6">
-                    <h3 class="font-bold text-lg mb-4">🔗 Enlaces Rápidos</h3>
-                    <div class="space-y-2">
-                        <a href="https://supabase.com/dashboard" target="_blank" class="block text-blue-600 hover:underline">
-                            → Panel de Supabase
+                <div class="border-t pt-4 sm:pt-6 mt-4 sm:mt-6">
+                    <h3 class="font-bold text-base sm:text-lg mb-3 sm:mb-4">🔗 Enlaces Rápidos</h3>
+                    <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">
+                        <a href="https://supabase.com/dashboard" target="_blank" class="block text-blue-600 hover:underline text-sm sm:text-base py-2">
+                            → Supabase
                         </a>
-                        <a href="https://dashboard.render.com" target="_blank" class="block text-blue-600 hover:underline">
-                            → Panel de Render
+                        <a href="https://dashboard.render.com" target="_blank" class="block text-blue-600 hover:underline text-sm sm:text-base py-2">
+                            → Render
                         </a>
-                        <a href="https://todoist.com/app/project/2362882414" target="_blank" class="block text-blue-600 hover:underline">
-                            → Proyecto Todoist
+                        <a href="https://todoist.com/app/project/2362882414" target="_blank" class="block text-blue-600 hover:underline text-sm sm:text-base py-2">
+                            → Todoist
                         </a>
-                        <a href="https://makersuite.google.com/app/apikey" target="_blank" class="block text-blue-600 hover:underline">
-                            → API Keys de Gemini
+                        <a href="https://makersuite.google.com/app/apikey" target="_blank" class="block text-blue-600 hover:underline text-sm sm:text-base py-2">
+                            → Gemini API
                         </a>
                     </div>
                 </div>
@@ -858,7 +858,7 @@
     </div>
 
     <!-- Toast Notifications -->
-    <div id="toast" class="hidden fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg z-50"></div>
+    <div id="toast" class="hidden fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 bg-gray-800 text-white px-4 sm:px-6 py-3 rounded-lg shadow-lg z-50 text-sm sm:text-base text-center sm:text-left"></div>
 
     <!-- Scripts -->
     <script src="/static/js/app.js"></script>

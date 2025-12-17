@@ -6,9 +6,11 @@ const API_URL = window.location.origin;
 let currentJoke = null;
 let allJokes = [];
 let currentStep = 1;
-let premisaLines = [];
-let rupturaLines = [];
-let remateLines = [];
+let chisteLines = [];  // All joke lines
+let selectedPremisa = [];  // Indices of lines selected as premisa
+let selectedRuptura = [];  // Indices of lines selected as ruptura
+let selectedRemate = [];   // Indices of lines selected as remate
+const TOTAL_STEPS = 7;
 
 // ====================
 // UTILIDADES
@@ -102,11 +104,12 @@ function initTabs() {
 
 const stepLabels = [
     'Identificación',
-    'Premisa',
-    'Ruptura',
-    'Remate',
-    'Perspectiva y Concepto',
-    'Formulación y Notas'
+    'Escribe el Chiste',
+    'Selecciona Premisa',
+    'Selecciona Ruptura',
+    'Selecciona Remate',
+    'Concepto',
+    'Notas Finales'
 ];
 
 // Open wizard in fullscreen
@@ -133,7 +136,7 @@ function closeAnalisisWizard() {
 
 function updateWizardProgress() {
     // Update step label and title
-    document.getElementById('stepLabel').textContent = `Paso ${currentStep} de 6`;
+    document.getElementById('stepLabel').textContent = `Paso ${currentStep} de ${TOTAL_STEPS}`;
     document.getElementById('stepTitle').textContent = stepLabels[currentStep - 1];
 
     // Update dots
@@ -155,7 +158,7 @@ function updateWizardProgress() {
     prevBtn.style.visibility = currentStep === 1 ? 'hidden' : 'visible';
 
     // Show next or save button
-    if (currentStep === 6) {
+    if (currentStep === TOTAL_STEPS) {
         nextBtn.classList.add('hidden');
         saveBtn.classList.remove('hidden');
     } else {
@@ -170,12 +173,21 @@ function nextStep() {
         return;
     }
 
-    if (currentStep < 6) {
+    if (currentStep < TOTAL_STEPS) {
         // Hide current step with animation
         const currentStepEl = document.querySelector(`.wizard-step[data-step="${currentStep}"]`);
         currentStepEl.classList.remove('active');
 
         currentStep++;
+
+        // Populate line selection checkboxes when entering steps 3, 4, 5
+        if (currentStep === 3) {
+            populateLineSelectionCheckboxes('premisaSelectionContainer', 'premisa');
+        } else if (currentStep === 4) {
+            populateLineSelectionCheckboxes('rupturaSelectionContainer', 'ruptura');
+        } else if (currentStep === 5) {
+            populateLineSelectionCheckboxes('remateSelectionContainer', 'remate');
+        }
 
         // Show next step
         const nextStepEl = document.querySelector(`.wizard-step[data-step="${currentStep}"]`);
@@ -242,23 +254,30 @@ function validateCurrentStep() {
                 isValid = false;
             }
             break;
-        case 2: // Premisa
-            if (premisaLines.length === 0 || premisaLines.every(line => !line.trim())) {
-                errorMessage = 'Por favor añade al menos una línea de premisa';
+        case 2: // Escribir Chiste
+            const validLines = chisteLines.filter(line => line && line.trim());
+            if (validLines.length === 0) {
+                errorMessage = 'Por favor añade al menos una línea del chiste';
                 isValid = false;
             }
             break;
-        case 3: // Ruptura
-            if (rupturaLines.length === 0 || rupturaLines.every(line => !line.trim())) {
-                errorMessage = 'Por favor añade al menos una línea de ruptura';
+        case 3: // Seleccionar Premisa
+            if (selectedPremisa.length === 0) {
+                errorMessage = 'Por favor selecciona al menos una línea como premisa';
                 isValid = false;
             }
             break;
-        case 4: // Remate
-            if (remateLines.length === 0 || remateLines.every(line => !line.trim())) {
-                errorMessage = 'Por favor añade al menos una línea de remate';
+        case 4: // Seleccionar Ruptura
+            // Ruptura is optional, no validation required
+            break;
+        case 5: // Seleccionar Remate
+            if (selectedRemate.length === 0) {
+                errorMessage = 'Por favor selecciona al menos una línea como remate';
                 isValid = false;
             }
+            break;
+        case 6: // Concepto
+            // Concept is recommended but not required
             break;
     }
 
@@ -273,22 +292,23 @@ function validateCurrentStep() {
 // DYNAMIC LINE INPUTS
 // ====================
 
-function addPremisaLine(value = '') {
-    const container = document.getElementById('premisaLinesContainer');
-    const index = premisaLines.length;
-    premisaLines.push(value);
+// Add a new line to the complete joke
+function addChisteLine(value = '') {
+    const container = document.getElementById('chisteCompleteLinesContainer');
+    const index = chisteLines.length;
+    chisteLines.push(value);
 
     const lineDiv = document.createElement('div');
     lineDiv.className = 'line-input-group';
     lineDiv.dataset.index = index;
     lineDiv.innerHTML = `
+        <span class="text-gray-400 font-mono text-sm w-8">${index + 1}.</span>
         <input type="text"
-            class="px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500"
-            placeholder="Línea ${index + 1} de la premisa..."
-            value="${value}"
-            data-line-type="premisa"
+            class="flex-1 px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-500"
+            placeholder="Línea ${index + 1} del chiste..."
+            value="${escapeHtml(value)}"
             data-line-index="${index}">
-        <button type="button" class="btn-remove" onclick="removePremisaLine(${index})" title="Eliminar línea">
+        <button type="button" class="btn-remove" onclick="removeChisteLine(${index})" title="Eliminar línea">
             ×
         </button>
     `;
@@ -298,114 +318,145 @@ function addPremisaLine(value = '') {
     // Add event listener to update array
     const input = lineDiv.querySelector('input');
     input.addEventListener('input', (e) => {
-        premisaLines[index] = e.target.value;
+        chisteLines[index] = e.target.value;
     });
+
+    // Focus new input
+    input.focus();
 }
 
-function removePremisaLine(index) {
-    const container = document.getElementById('premisaLinesContainer');
+function removeChisteLine(index) {
+    const container = document.getElementById('chisteCompleteLinesContainer');
     const lineDiv = container.querySelector(`[data-index="${index}"]`);
     if (lineDiv) {
         lineDiv.remove();
-        premisaLines[index] = null; // Mark as deleted
+        chisteLines[index] = null; // Mark as deleted
+
+        // Also remove from selections
+        selectedPremisa = selectedPremisa.filter(i => i !== index);
+        selectedRuptura = selectedRuptura.filter(i => i !== index);
+        selectedRemate = selectedRemate.filter(i => i !== index);
     }
 }
 
-function addRupturaLine(value = '') {
-    const container = document.getElementById('rupturaLinesContainer');
-    const index = rupturaLines.length;
-    rupturaLines.push(value);
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
-    const lineDiv = document.createElement('div');
-    lineDiv.className = 'line-input-group';
-    lineDiv.dataset.index = index;
-    lineDiv.innerHTML = `
-        <input type="text"
-            class="px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-orange-500"
-            placeholder="Línea ${index + 1} de la ruptura..."
-            value="${value}"
-            data-line-type="ruptura"
-            data-line-index="${index}">
-        <button type="button" class="btn-remove" onclick="removeRupturaLine(${index})" title="Eliminar línea">
-            ×
-        </button>
-    `;
+// Populate line selection checkboxes for premisa/ruptura/remate
+function populateLineSelectionCheckboxes(containerId, type) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
 
-    container.appendChild(lineDiv);
+    // Get valid lines (not null/empty)
+    const validLines = chisteLines.map((line, index) => ({ line, index }))
+        .filter(item => item.line && item.line.trim());
 
-    // Add event listener to update array
-    const input = lineDiv.querySelector('input');
-    input.addEventListener('input', (e) => {
-        rupturaLines[index] = e.target.value;
+    if (validLines.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-sm">No hay líneas escritas. Vuelve al paso anterior.</p>';
+        return;
+    }
+
+    // Get the appropriate selection array
+    let selectedArray;
+    let colorClass;
+    switch (type) {
+        case 'premisa':
+            selectedArray = selectedPremisa;
+            colorClass = 'blue';
+            break;
+        case 'ruptura':
+            selectedArray = selectedRuptura;
+            colorClass = 'orange';
+            break;
+        case 'remate':
+            selectedArray = selectedRemate;
+            colorClass = 'emerald';
+            break;
+    }
+
+    validLines.forEach(item => {
+        const isChecked = selectedArray.includes(item.index);
+        const checkboxDiv = document.createElement('div');
+        checkboxDiv.className = `line-checkbox-item p-3 rounded-lg border-2 ${isChecked ? `border-${colorClass}-500 bg-${colorClass}-100` : 'border-gray-200 bg-white'} cursor-pointer transition-all`;
+        checkboxDiv.innerHTML = `
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox"
+                    class="mt-1 w-5 h-5 rounded text-${colorClass}-600 focus:ring-${colorClass}-500"
+                    data-line-index="${item.index}"
+                    data-type="${type}"
+                    ${isChecked ? 'checked' : ''}>
+                <div class="flex-1">
+                    <span class="text-xs text-gray-400 font-mono">Línea ${item.index + 1}</span>
+                    <p class="text-sm font-medium text-gray-800">${escapeHtml(item.line)}</p>
+                </div>
+            </label>
+        `;
+
+        // Add click handler
+        const checkbox = checkboxDiv.querySelector('input[type="checkbox"]');
+        checkbox.addEventListener('change', (e) => {
+            const lineIndex = parseInt(e.target.dataset.lineIndex);
+            const lineType = e.target.dataset.type;
+
+            if (e.target.checked) {
+                // Add to selection
+                if (lineType === 'premisa' && !selectedPremisa.includes(lineIndex)) {
+                    selectedPremisa.push(lineIndex);
+                } else if (lineType === 'ruptura' && !selectedRuptura.includes(lineIndex)) {
+                    selectedRuptura.push(lineIndex);
+                } else if (lineType === 'remate' && !selectedRemate.includes(lineIndex)) {
+                    selectedRemate.push(lineIndex);
+                }
+                checkboxDiv.classList.remove('border-gray-200', 'bg-white');
+                checkboxDiv.classList.add(`border-${colorClass}-500`, `bg-${colorClass}-100`);
+            } else {
+                // Remove from selection
+                if (lineType === 'premisa') {
+                    selectedPremisa = selectedPremisa.filter(i => i !== lineIndex);
+                } else if (lineType === 'ruptura') {
+                    selectedRuptura = selectedRuptura.filter(i => i !== lineIndex);
+                } else if (lineType === 'remate') {
+                    selectedRemate = selectedRemate.filter(i => i !== lineIndex);
+                }
+                checkboxDiv.classList.add('border-gray-200', 'bg-white');
+                checkboxDiv.classList.remove(`border-${colorClass}-500`, `bg-${colorClass}-100`);
+            }
+        });
+
+        container.appendChild(checkboxDiv);
     });
-}
-
-function removeRupturaLine(index) {
-    const container = document.getElementById('rupturaLinesContainer');
-    const lineDiv = container.querySelector(`[data-index="${index}"]`);
-    if (lineDiv) {
-        lineDiv.remove();
-        rupturaLines[index] = null; // Mark as deleted
-    }
-}
-
-function addRemateLine(value = '') {
-    const container = document.getElementById('remateLinesContainer');
-    const index = remateLines.length;
-    remateLines.push(value);
-
-    const lineDiv = document.createElement('div');
-    lineDiv.className = 'line-input-group';
-    lineDiv.dataset.index = index;
-    lineDiv.innerHTML = `
-        <input type="text"
-            class="px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-emerald-500"
-            placeholder="Línea ${index + 1} del remate..."
-            value="${value}"
-            data-line-type="remate"
-            data-line-index="${index}">
-        <button type="button" class="btn-remove" onclick="removeRemateLine(${index})" title="Eliminar línea">
-            ×
-        </button>
-    `;
-
-    container.appendChild(lineDiv);
-
-    // Add event listener to update array
-    const input = lineDiv.querySelector('input');
-    input.addEventListener('input', (e) => {
-        remateLines[index] = e.target.value;
-    });
-}
-
-function removeRemateLine(index) {
-    const container = document.getElementById('remateLinesContainer');
-    const lineDiv = container.querySelector(`[data-index="${index}"]`);
-    if (lineDiv) {
-        lineDiv.remove();
-        remateLines[index] = null; // Mark as deleted
-    }
 }
 
 function initAnalisisWizard() {
     // Reset wizard state
     currentStep = 1;
-    premisaLines = [];
-    rupturaLines = [];
-    remateLines = [];
+    chisteLines = [];
+    selectedPremisa = [];
+    selectedRuptura = [];
+    selectedRemate = [];
 
     // Clear form
     document.getElementById('analisisWizardForm').reset();
 
     // Clear containers
-    document.getElementById('premisaLinesContainer').innerHTML = '';
-    document.getElementById('rupturaLinesContainer').innerHTML = '';
-    document.getElementById('remateLinesContainer').innerHTML = '';
+    const chisteContainer = document.getElementById('chisteCompleteLinesContainer');
+    if (chisteContainer) chisteContainer.innerHTML = '';
 
-    // Add initial lines
-    addPremisaLine();
-    addRupturaLine();
-    addRemateLine();
+    const premisaContainer = document.getElementById('premisaSelectionContainer');
+    if (premisaContainer) premisaContainer.innerHTML = '';
+
+    const rupturaContainer = document.getElementById('rupturaSelectionContainer');
+    if (rupturaContainer) rupturaContainer.innerHTML = '';
+
+    const remateContainer = document.getElementById('remateSelectionContainer');
+    if (remateContainer) remateContainer.innerHTML = '';
+
+    // Add initial line for the joke
+    addChisteLine();
 
     // Reset progress
     updateWizardProgress();
@@ -442,66 +493,82 @@ async function loadCategorias() {
     }
 }
 
-// Poblar todos los dropdowns
+// Poblar todos los dropdowns (usando datalists editables)
 function populateAllDropdowns() {
-    populateDropdown('analisisElementoMecanico', categorias.elemento_mecanico || [], 'elemento_mecanico');
-    populateDropdown('analisisPerspectivaCategoria', categorias.perspectiva || [], 'perspectiva');
-    populateDropdown('analisisActitud', categorias.actitud || [], 'actitud');
-    populateDropdown('analisisConceptoCategoria', categorias.concepto || [], 'concepto');
-    populateDropdown('analisisFormulacionCategoria', categorias.formulacion || [], 'formulacion');
+    populateDatalist('elementoMecanicoList', categorias.elemento_mecanico || []);
+    populateDatalist('perspectivaCategoriaList', categorias.perspectiva || []);
+    populateDatalist('actitudList', categorias.actitud || []);
+    populateDatalist('conceptoCategoriaList', categorias.concepto || []);
+    populateDatalist('formulacionCategoriaList', categorias.formulacion || []);
+
+    // Setup auto-save for new categories
+    setupEditableDropdown('analisisElementoMecanico', 'elemento_mecanico');
+    setupEditableDropdown('analisisPerspectivaCategoria', 'perspectiva');
+    setupEditableDropdown('analisisActitud', 'actitud');
+    setupEditableDropdown('analisisConceptoCategoria', 'concepto');
+    setupEditableDropdown('analisisFormulacionCategoria', 'formulacion');
 }
 
-// Poblar un dropdown con opción "Agregar nuevo"
-function populateDropdown(elementId, options, tipo) {
-    const select = document.getElementById(elementId);
-    if (!select) return;
+// Poblar un datalist con opciones existentes
+function populateDatalist(datalistId, options) {
+    const datalist = document.getElementById(datalistId);
+    if (!datalist) return;
 
-    // Remove previous change listeners
-    const newSelect = select.cloneNode(false);
-    select.parentNode.replaceChild(newSelect, select);
+    datalist.innerHTML = '';
 
-    // Limpiar opciones existentes excepto la primera
-    newSelect.innerHTML = '<option value="">Seleccionar...</option>';
-
-    // Añadir opciones existentes
     options.forEach(opt => {
         const option = document.createElement('option');
         option.value = opt.valor;
-        option.textContent = opt.valor;
-        newSelect.appendChild(option);
+        datalist.appendChild(option);
     });
+}
 
-    // Añadir opción "Agregar nuevo"
-    const addNew = document.createElement('option');
-    addNew.value = '__ADD_NEW__';
-    addNew.textContent = '+ Agregar nuevo';
-    addNew.className = 'dropdown-add-option';
-    newSelect.appendChild(addNew);
+// Setup editable dropdown that saves new values to database
+function setupEditableDropdown(inputId, tipo) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
 
-    // Evento para manejar "Agregar nuevo"
-    newSelect.addEventListener('change', async (e) => {
-        if (e.target.value === '__ADD_NEW__') {
-            const newValue = prompt(`Nueva categoría de ${tipo}:`);
-            if (newValue && newValue.trim()) {
-                try {
-                    const response = await apiRequest('/api/categorias/', {
-                        method: 'POST',
-                        body: JSON.stringify({ tipo, valor: newValue.trim() })
-                    });
+    // Track the last known value to detect new entries
+    let lastValue = '';
 
-                    if (response.success) {
-                        await loadCategorias(); // Recargar todas las categorías
-                        document.getElementById(elementId).value = newValue.trim(); // Seleccionar la nueva
-                        showToast(`Categoría "${newValue}" añadida`);
-                    }
-                } catch (error) {
-                    showToast('Error al crear categoría', 'error');
-                    e.target.value = '';
+    // On blur, check if value is new and save it
+    input.addEventListener('blur', async () => {
+        const value = input.value.trim();
+
+        if (!value || value === lastValue) return;
+
+        // Check if this value already exists in the datalist
+        const datalistId = input.getAttribute('list');
+        const datalist = document.getElementById(datalistId);
+        const existingOptions = Array.from(datalist.options).map(opt => opt.value.toLowerCase());
+
+        if (!existingOptions.includes(value.toLowerCase())) {
+            // New value - save to database
+            try {
+                const response = await apiRequest('/api/categorias/', {
+                    method: 'POST',
+                    body: JSON.stringify({ tipo, valor: value })
+                });
+
+                if (response.success) {
+                    // Add to datalist immediately
+                    const newOption = document.createElement('option');
+                    newOption.value = value;
+                    datalist.appendChild(newOption);
+
+                    // Update local categories
+                    if (!categorias[tipo]) categorias[tipo] = [];
+                    categorias[tipo].push({ valor: value });
+
+                    showToast(`"${value}" guardado como nueva categoría`);
                 }
-            } else {
-                e.target.value = '';
+            } catch (error) {
+                console.error('Error saving category:', error);
+                // Silently fail - the value is still in the input
             }
         }
+
+        lastValue = value;
     });
 }
 
@@ -521,14 +588,26 @@ async function saveAnalisisWizard() {
     try {
         showLoading('Guardando análisis...');
 
-        // Collect all lines (filter out null/empty)
-        const premisaText = premisaLines.filter(l => l && l.trim()).join('\n');
-        const rupturaText = rupturaLines.filter(l => l && l.trim()).join('\n');
-        const remateText = remateLines.filter(l => l && l.trim()).join('\n');
+        // Get lines from selections (indices -> actual text)
+        const getSelectedLinesText = (indices) => {
+            return indices
+                .sort((a, b) => a - b)
+                .map(idx => chisteLines[idx])
+                .filter(l => l && l.trim())
+                .join('\n');
+        };
+
+        const premisaText = getSelectedLinesText(selectedPremisa);
+        const rupturaText = getSelectedLinesText(selectedRuptura);
+        const remateText = getSelectedLinesText(selectedRemate);
+
+        // Get the full chiste text
+        const chisteCompletoText = chisteLines.filter(l => l && l.trim()).join('\n');
 
         const formData = {
             titulo_referencia: document.getElementById('analisisTitulo').value,
             comediante: document.getElementById('analisisComediante').value,
+            chiste_completo: chisteCompletoText,
             premisa: premisaText,
             elemento_mecanico: document.getElementById('analisisElementoMecanico').value,
             ruptura: rupturaText,
@@ -545,9 +624,9 @@ async function saveAnalisisWizard() {
         };
 
         // Validar campos requeridos
-        if (!formData.premisa || !formData.ruptura || !formData.remate) {
+        if (!formData.premisa || !formData.remate) {
             hideLoading();
-            showToast('Premisa, ruptura y remate son obligatorios', 'error');
+            showToast('Premisa y remate son obligatorios', 'error');
             return;
         }
 
@@ -800,46 +879,61 @@ async function editBibliotecaItem(id) {
             wizard.classList.add('active');
             document.body.style.overflow = 'hidden';
 
-            // Reset wizard to step 1
+            // Reset wizard state
             currentStep = 1;
+            chisteLines = [];
+            selectedPremisa = [];
+            selectedRuptura = [];
+            selectedRemate = [];
+
             updateWizardProgress();
             document.querySelectorAll('.wizard-step').forEach(step => step.classList.remove('active'));
             document.querySelector('.wizard-step[data-step="1"]').classList.add('active');
 
-            // Fill form
+            // Fill form - Step 1
             document.getElementById('analisisTitulo').value = analisis.titulo_referencia || '';
             document.getElementById('analisisComediante').value = analisis.comediante || '';
 
-            // Fill premisa lines
-            const premisaData = analisis.premisa ? analisis.premisa.split('\n').filter(l => l.trim()) : [];
-            premisaLines = [];
-            document.getElementById('premisaLinesContainer').innerHTML = '';
-            if (premisaData.length === 0) {
-                addPremisaLine();
+            // Fill chiste lines - use chiste_completo if available, otherwise reconstruct from parts
+            const chisteContainer = document.getElementById('chisteCompleteLinesContainer');
+            chisteContainer.innerHTML = '';
+
+            let allLines = [];
+            if (analisis.chiste_completo) {
+                allLines = analisis.chiste_completo.split('\n').filter(l => l.trim());
             } else {
-                premisaData.forEach(line => addPremisaLine(line));
+                // Reconstruct from premisa, ruptura, remate
+                const premisaData = analisis.premisa ? analisis.premisa.split('\n').filter(l => l.trim()) : [];
+                const rupturaData = analisis.ruptura ? analisis.ruptura.split('\n').filter(l => l.trim()) : [];
+                const remateData = analisis.remate ? analisis.remate.split('\n').filter(l => l.trim()) : [];
+                allLines = [...premisaData, ...rupturaData, ...remateData];
             }
 
-            // Fill ruptura lines
-            const rupturaData = analisis.ruptura ? analisis.ruptura.split('\n').filter(l => l.trim()) : [];
-            rupturaLines = [];
-            document.getElementById('rupturaLinesContainer').innerHTML = '';
-            if (rupturaData.length === 0) {
-                addRupturaLine();
+            // Add lines to chiste container
+            if (allLines.length === 0) {
+                addChisteLine();
             } else {
-                rupturaData.forEach(line => addRupturaLine(line));
+                allLines.forEach(line => addChisteLine(line));
             }
 
-            // Fill remate lines
-            const remateData = analisis.remate ? analisis.remate.split('\n').filter(l => l.trim()) : [];
-            remateLines = [];
-            document.getElementById('remateLinesContainer').innerHTML = '';
-            if (remateData.length === 0) {
-                addRemateLine();
-            } else {
-                remateData.forEach(line => addRemateLine(line));
-            }
+            // Pre-select lines for premisa, ruptura, remate based on matching text
+            const premisaLines = analisis.premisa ? analisis.premisa.split('\n').filter(l => l.trim()) : [];
+            const rupturaLinesData = analisis.ruptura ? analisis.ruptura.split('\n').filter(l => l.trim()) : [];
+            const remateLines = analisis.remate ? analisis.remate.split('\n').filter(l => l.trim()) : [];
 
+            chisteLines.forEach((line, index) => {
+                if (line && premisaLines.includes(line.trim())) {
+                    selectedPremisa.push(index);
+                }
+                if (line && rupturaLinesData.includes(line.trim())) {
+                    selectedRuptura.push(index);
+                }
+                if (line && remateLines.includes(line.trim())) {
+                    selectedRemate.push(index);
+                }
+            });
+
+            // Fill other fields
             document.getElementById('analisisElementoMecanico').value = analisis.elemento_mecanico || '';
             document.getElementById('analisisPerspectivaCategoria').value = analisis.perspectiva_categoria || '';
             document.getElementById('analisisPerspectivaJustificacion').value = analisis.perspectiva_justificacion || '';

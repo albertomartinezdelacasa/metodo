@@ -390,6 +390,42 @@
             transform: translateY(-4px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+
+        /* Line checkbox items for selection */
+        .line-checkbox-item {
+            transition: all 0.2s ease;
+        }
+
+        .line-checkbox-item:hover {
+            transform: translateX(4px);
+        }
+
+        .line-checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        /* Editable dropdown styling */
+        .editable-dropdown-container input {
+            width: 100%;
+        }
+
+        .editable-dropdown-container input:focus {
+            outline: none;
+        }
+
+        /* Mobile checkbox touch targets */
+        @media (max-width: 640px) {
+            .line-checkbox-item {
+                padding: 16px 12px;
+            }
+
+            .line-checkbox-item input[type="checkbox"] {
+                width: 24px;
+                height: 24px;
+            }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
@@ -468,7 +504,7 @@
                         Comenzar Análisis
                     </button>
 
-                    <p class="text-gray-500 text-sm mt-6">6 pantallas · 3-5 minutos</p>
+                    <p class="text-gray-500 text-sm mt-6">7 pantallas · 3-5 minutos</p>
                 </div>
             </div>
         </div>
@@ -480,7 +516,7 @@
             <!-- Header -->
             <div class="wizard-header relative">
                 <div class="text-center text-white">
-                    <p class="text-sm opacity-80" id="stepLabel">Paso 1 de 6</p>
+                    <p class="text-sm opacity-80" id="stepLabel">Paso 1 de 7</p>
                     <h2 class="text-xl font-bold" id="stepTitle">Identificación</h2>
                 </div>
                 <div class="step-dots mt-4">
@@ -490,6 +526,7 @@
                     <div class="step-dot" data-step="4"></div>
                     <div class="step-dot" data-step="5"></div>
                     <div class="step-dot" data-step="6"></div>
+                    <div class="step-dot" data-step="7"></div>
                 </div>
             </div>
 
@@ -523,106 +560,144 @@
                         </div>
                     </div>
 
-                    <!-- Step 2: Premisa -->
+                    <!-- Step 2: Escribir Chiste Completo -->
                     <div class="wizard-step" data-step="2">
                         <div class="wizard-card">
                             <div class="text-center mb-6">
-                                <div class="text-6xl mb-4">📋</div>
-                                <h3 class="text-2xl font-bold mb-2 text-blue-800">Premisa (Setup)</h3>
-                                <p class="text-gray-500">La preparación del chiste</p>
+                                <div class="text-6xl mb-4">✍️</div>
+                                <h3 class="text-2xl font-bold mb-2 text-gray-800">Escribe el Chiste</h3>
+                                <p class="text-gray-500">Añade cada línea del chiste completo</p>
                             </div>
 
-                            <div class="space-y-4">
-                                <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-5">
-                                    <label class="block text-sm font-semibold mb-3 text-blue-800">Líneas de la Premisa</label>
-                                    <div id="premisaLinesContainer">
-                                        <!-- Dynamic lines -->
-                                    </div>
-                                    <button type="button" class="btn-add-line mt-3" onclick="addPremisaLine()">
-                                        + Añadir línea
-                                    </button>
+                            <div class="bg-gray-50 border-2 border-gray-200 rounded-xl p-5">
+                                <label class="block text-sm font-semibold mb-3 text-gray-800">Líneas del Chiste</label>
+                                <div id="chisteCompleteLinesContainer">
+                                    <!-- Dynamic lines -->
                                 </div>
-
-                                <div>
-                                    <label class="block text-sm font-semibold mb-2 text-gray-700">Elemento Mecánico</label>
-                                    <select id="analisisElementoMecanico"
-                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500">
-                                        <option value="">Seleccionar...</option>
-                                    </select>
-                                    <p class="text-xs text-gray-500 mt-2">¿Qué elemento hace funcionar la premisa?</p>
-                                </div>
+                                <button type="button" class="btn-add-line mt-3" onclick="addChisteLine()">
+                                    + Añadir línea
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Step 3: Ruptura -->
+                    <!-- Step 3: Seleccionar Premisa -->
                     <div class="wizard-step" data-step="3">
                         <div class="wizard-card">
                             <div class="text-center mb-6">
-                                <div class="text-6xl mb-4">💥</div>
-                                <h3 class="text-2xl font-bold mb-2 text-orange-600">Ruptura</h3>
-                                <p class="text-gray-500">El momento donde se rompe la expectativa</p>
+                                <div class="text-6xl mb-4">📋</div>
+                                <h3 class="text-2xl font-bold mb-2 text-blue-800">Selecciona la Premisa</h3>
+                                <p class="text-gray-500">¿Cuáles líneas preparan el chiste?</p>
                             </div>
 
-                            <div class="bg-orange-50 border-2 border-orange-200 rounded-xl p-5">
-                                <label class="block text-sm font-semibold mb-3 text-orange-800">Líneas de la Ruptura</label>
-                                <div id="rupturaLinesContainer">
-                                    <!-- Dynamic lines -->
+                            <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-5">
+                                <label class="block text-sm font-semibold mb-3 text-blue-800">Marca las líneas de Premisa (Setup)</label>
+                                <div id="premisaSelectionContainer" class="space-y-2">
+                                    <!-- Checkboxes generated from chiste lines -->
                                 </div>
-                                <button type="button" class="btn-add-line mt-3" onclick="addRupturaLine()">
-                                    + Añadir línea
-                                </button>
+                            </div>
+
+                            <div class="mt-4">
+                                <label class="block text-sm font-semibold mb-2 text-gray-700">Elemento Mecánico</label>
+                                <div class="editable-dropdown-container">
+                                    <input type="text" id="analisisElementoMecanico" list="elementoMecanicoList"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500"
+                                        placeholder="Seleccionar o escribir nuevo...">
+                                    <datalist id="elementoMecanicoList"></datalist>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">¿Qué elemento hace funcionar la premisa?</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Step 4: Remate -->
+                    <!-- Step 4: Seleccionar Ruptura -->
                     <div class="wizard-step" data-step="4">
                         <div class="wizard-card">
                             <div class="text-center mb-6">
-                                <div class="text-6xl mb-4">🎯</div>
-                                <h3 class="text-2xl font-bold mb-2 text-emerald-600">Remate (Punchline)</h3>
-                                <p class="text-gray-500">El cierre que genera la risa</p>
+                                <div class="text-6xl mb-4">💥</div>
+                                <h3 class="text-2xl font-bold mb-2 text-orange-600">Selecciona la Ruptura</h3>
+                                <p class="text-gray-500">¿Dónde se rompe la expectativa?</p>
                             </div>
 
-                            <div class="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-5">
-                                <label class="block text-sm font-semibold mb-3 text-emerald-800">Líneas del Remate</label>
-                                <div id="remateLinesContainer">
-                                    <!-- Dynamic lines -->
+                            <div class="bg-orange-50 border-2 border-orange-200 rounded-xl p-5">
+                                <label class="block text-sm font-semibold mb-3 text-orange-800">Marca las líneas de Ruptura</label>
+                                <div id="rupturaSelectionContainer" class="space-y-2">
+                                    <!-- Checkboxes generated from chiste lines -->
                                 </div>
-                                <button type="button" class="btn-add-line mt-3" onclick="addRemateLine()">
-                                    + Añadir línea
-                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Step 5: Perspectiva y Concepto -->
+                    <!-- Step 5: Seleccionar Remate -->
                     <div class="wizard-step" data-step="5">
                         <div class="wizard-card">
                             <div class="text-center mb-6">
-                                <div class="text-6xl mb-4">👁️</div>
-                                <h3 class="text-2xl font-bold mb-2 text-indigo-700">Perspectiva y Concepto</h3>
-                                <p class="text-gray-500">El punto de vista y la idea central</p>
+                                <div class="text-6xl mb-4">🎯</div>
+                                <h3 class="text-2xl font-bold mb-2 text-emerald-600">Selecciona el Remate</h3>
+                                <p class="text-gray-500">¿Cuáles líneas generan la risa?</p>
+                            </div>
+
+                            <div class="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-5">
+                                <label class="block text-sm font-semibold mb-3 text-emerald-800">Marca las líneas del Remate (Punchline)</label>
+                                <div id="remateSelectionContainer" class="space-y-2">
+                                    <!-- Checkboxes generated from chiste lines -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 6: Concepto -->
+                    <div class="wizard-step" data-step="6">
+                        <div class="wizard-card">
+                            <div class="text-center mb-6">
+                                <div class="text-6xl mb-4">💡</div>
+                                <h3 class="text-2xl font-bold mb-2 text-purple-700">Concepto</h3>
+                                <p class="text-gray-500">Define la idea central del chiste</p>
                             </div>
 
                             <div class="space-y-5">
+                                <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-5">
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-semibold mb-2 text-purple-800">Concepto Principal *</label>
+                                            <input type="text" id="analisisConcepto"
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 text-lg"
+                                                placeholder="Ej: La incomodidad social en ascensores">
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-sm font-semibold mb-2 text-purple-800">Tipo de Concepto</label>
+                                            <div class="editable-dropdown-container">
+                                                <input type="text" id="analisisConceptoCategoria" list="conceptoCategoriaList"
+                                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500"
+                                                    placeholder="Seleccionar o escribir nuevo...">
+                                                <datalist id="conceptoCategoriaList"></datalist>
+                                            </div>
+                                            <p class="text-xs text-gray-500 mt-2">Escribe para añadir nuevo tipo</p>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="bg-indigo-50 border-2 border-indigo-200 rounded-xl p-5">
-                                    <h4 class="font-bold mb-4 text-indigo-800">Perspectiva</h4>
+                                    <h4 class="font-bold mb-4 text-indigo-800">Perspectiva (Opcional)</h4>
                                     <div class="grid grid-cols-2 gap-3 mb-4">
                                         <div>
                                             <label class="block text-xs font-semibold mb-2">Categoría</label>
-                                            <select id="analisisPerspectivaCategoria"
-                                                class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-sm">
-                                                <option value="">Seleccionar...</option>
-                                            </select>
+                                            <div class="editable-dropdown-container">
+                                                <input type="text" id="analisisPerspectivaCategoria" list="perspectivaCategoriaList"
+                                                    class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-sm"
+                                                    placeholder="Seleccionar...">
+                                                <datalist id="perspectivaCategoriaList"></datalist>
+                                            </div>
                                         </div>
                                         <div>
                                             <label class="block text-xs font-semibold mb-2">Actitud</label>
-                                            <select id="analisisActitud"
-                                                class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-sm">
-                                                <option value="">Seleccionar...</option>
-                                            </select>
+                                            <div class="editable-dropdown-container">
+                                                <input type="text" id="analisisActitud" list="actitudList"
+                                                    class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-sm"
+                                                    placeholder="Seleccionar...">
+                                                <datalist id="actitudList"></datalist>
+                                            </div>
                                         </div>
                                     </div>
                                     <div>
@@ -632,36 +707,17 @@
                                             placeholder="¿Por qué funciona?"></textarea>
                                     </div>
                                 </div>
-
-                                <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-5">
-                                    <h4 class="font-bold mb-4 text-purple-800">Concepto</h4>
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="block text-xs font-semibold mb-2">Concepto Principal</label>
-                                            <input type="text" id="analisisConcepto"
-                                                class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-sm"
-                                                placeholder="Ej: Incomodidad social">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-semibold mb-2">Categoría</label>
-                                            <select id="analisisConceptoCategoria"
-                                                class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-sm">
-                                                <option value="">Seleccionar...</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Step 6: Formulación y Notas -->
-                    <div class="wizard-step" data-step="6">
+                    <!-- Step 7: Formulación y Notas -->
+                    <div class="wizard-step" data-step="7">
                         <div class="wizard-card">
                             <div class="text-center mb-6">
                                 <div class="text-6xl mb-4">📝</div>
-                                <h3 class="text-2xl font-bold mb-2 text-purple-700">Formulación y Notas</h3>
-                                <p class="text-gray-500">Detalles finales del análisis</p>
+                                <h3 class="text-2xl font-bold mb-2 text-gray-700">Notas Finales</h3>
+                                <p class="text-gray-500">Detalles adicionales del análisis</p>
                             </div>
 
                             <div class="space-y-5">
@@ -677,10 +733,12 @@
                                     <div class="space-y-3">
                                         <div>
                                             <label class="block text-xs font-semibold mb-2">Categoría</label>
-                                            <select id="analisisFormulacionCategoria"
-                                                class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-sm">
-                                                <option value="">Seleccionar...</option>
-                                            </select>
+                                            <div class="editable-dropdown-container">
+                                                <input type="text" id="analisisFormulacionCategoria" list="formulacionCategoriaList"
+                                                    class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-sm"
+                                                    placeholder="Seleccionar o escribir nuevo...">
+                                                <datalist id="formulacionCategoriaList"></datalist>
+                                            </div>
                                         </div>
                                         <div>
                                             <label class="block text-xs font-semibold mb-2">Justificación</label>

@@ -109,11 +109,59 @@ const stepLabels = [
     'Formulación y Notas'
 ];
 
+// Open wizard in fullscreen
+function openAnalisisWizard() {
+    const wizard = document.getElementById('analisisWizard');
+    wizard.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    // Initialize wizard
+    initAnalisisWizard();
+
+    // Load categories if needed
+    if (categorias.perspectiva.length === 0) {
+        loadCategorias();
+    }
+}
+
+// Close wizard
+function closeAnalisisWizard() {
+    const wizard = document.getElementById('analisisWizard');
+    wizard.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
 function updateWizardProgress() {
-    const progress = (currentStep / 6) * 100;
-    document.getElementById('progressFill').style.width = `${progress}%`;
-    document.getElementById('stepLabel').textContent = `Paso ${currentStep}: ${stepLabels[currentStep - 1]}`;
-    document.getElementById('stepProgress').textContent = `${currentStep}/6`;
+    // Update step label and title
+    document.getElementById('stepLabel').textContent = `Paso ${currentStep} de 6`;
+    document.getElementById('stepTitle').textContent = stepLabels[currentStep - 1];
+
+    // Update dots
+    document.querySelectorAll('.step-dot').forEach((dot, index) => {
+        dot.classList.remove('active', 'completed');
+        if (index + 1 === currentStep) {
+            dot.classList.add('active');
+        } else if (index + 1 < currentStep) {
+            dot.classList.add('completed');
+        }
+    });
+
+    // Update navigation buttons
+    const prevBtn = document.getElementById('wizardPrevBtn');
+    const nextBtn = document.getElementById('wizardNextBtn');
+    const saveBtn = document.getElementById('wizardSaveBtn');
+
+    // Show/hide prev button
+    prevBtn.style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+
+    // Show next or save button
+    if (currentStep === 6) {
+        nextBtn.classList.add('hidden');
+        saveBtn.classList.remove('hidden');
+    } else {
+        nextBtn.classList.remove('hidden');
+        saveBtn.classList.add('hidden');
+    }
 }
 
 function nextStep() {
@@ -123,18 +171,20 @@ function nextStep() {
     }
 
     if (currentStep < 6) {
-        // Hide current step
-        document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.remove('active');
+        // Hide current step with animation
+        const currentStepEl = document.querySelector(`.wizard-step[data-step="${currentStep}"]`);
+        currentStepEl.classList.remove('active');
 
         currentStep++;
 
         // Show next step
-        document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('active');
+        const nextStepEl = document.querySelector(`.wizard-step[data-step="${currentStep}"]`);
+        nextStepEl.classList.add('active');
 
         updateWizardProgress();
 
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Scroll content to top
+        document.querySelector('.wizard-content').scrollTop = 0;
     }
 }
 
@@ -150,9 +200,33 @@ function prevStep() {
 
         updateWizardProgress();
 
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Scroll content to top
+        document.querySelector('.wizard-content').scrollTop = 0;
     }
+}
+
+// Submit wizard form
+function submitWizardForm() {
+    if (validateCurrentStep()) {
+        saveAnalisisWizard();
+    }
+}
+
+// Allow clicking on dots to navigate (only to completed steps)
+function initStepDots() {
+    document.querySelectorAll('.step-dot').forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            const targetStep = index + 1;
+            // Only allow navigation to completed steps or current step
+            if (targetStep < currentStep) {
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.remove('active');
+                currentStep = targetStep;
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('active');
+                updateWizardProgress();
+                document.querySelector('.wizard-content').scrollTop = 0;
+            }
+        });
+    });
 }
 
 function validateCurrentStep() {
@@ -320,6 +394,9 @@ function initAnalisisWizard() {
     rupturaLines = [];
     remateLines = [];
 
+    // Clear form
+    document.getElementById('analisisWizardForm').reset();
+
     // Clear containers
     document.getElementById('premisaLinesContainer').innerHTML = '';
     document.getElementById('rupturaLinesContainer').innerHTML = '';
@@ -336,11 +413,6 @@ function initAnalisisWizard() {
     // Show first step
     document.querySelectorAll('.wizard-step').forEach(step => step.classList.remove('active'));
     document.querySelector('.wizard-step[data-step="1"]').classList.add('active');
-
-    // Load categories if needed
-    if (categorias.perspectiva.length === 0) {
-        loadCategorias();
-    }
 }
 
 // ====================
@@ -488,9 +560,8 @@ async function saveAnalisisWizard() {
 
         if (response.success) {
             showToast('¡Análisis guardado exitosamente!');
-            // Reset wizard
-            document.getElementById('analisisWizardForm').reset();
-            initAnalisisWizard();
+            // Close wizard
+            closeAnalisisWizard();
             // Load biblioteca with new data
             await loadBiblioteca();
         }
@@ -724,10 +795,12 @@ async function editBibliotecaItem(id) {
             const analisis = response.data;
             currentAnalisisId = id;
 
-            // Switch to análisis tab
-            document.querySelector('[data-tab="analisis"]').click();
+            // Open wizard in fullscreen
+            const wizard = document.getElementById('analisisWizard');
+            wizard.classList.add('active');
+            document.body.style.overflow = 'hidden';
 
-            // Reset wizard
+            // Reset wizard to step 1
             currentStep = 1;
             updateWizardProgress();
             document.querySelectorAll('.wizard-step').forEach(step => step.classList.remove('active'));
@@ -738,30 +811,33 @@ async function editBibliotecaItem(id) {
             document.getElementById('analisisComediante').value = analisis.comediante || '';
 
             // Fill premisa lines
-            premisaLines = analisis.premisa ? analisis.premisa.split('\n') : [];
+            const premisaData = analisis.premisa ? analisis.premisa.split('\n').filter(l => l.trim()) : [];
+            premisaLines = [];
             document.getElementById('premisaLinesContainer').innerHTML = '';
-            if (premisaLines.length === 0) {
+            if (premisaData.length === 0) {
                 addPremisaLine();
             } else {
-                premisaLines.forEach(line => addPremisaLine(line));
+                premisaData.forEach(line => addPremisaLine(line));
             }
 
             // Fill ruptura lines
-            rupturaLines = analisis.ruptura ? analisis.ruptura.split('\n') : [];
+            const rupturaData = analisis.ruptura ? analisis.ruptura.split('\n').filter(l => l.trim()) : [];
+            rupturaLines = [];
             document.getElementById('rupturaLinesContainer').innerHTML = '';
-            if (rupturaLines.length === 0) {
+            if (rupturaData.length === 0) {
                 addRupturaLine();
             } else {
-                rupturaLines.forEach(line => addRupturaLine(line));
+                rupturaData.forEach(line => addRupturaLine(line));
             }
 
             // Fill remate lines
-            remateLines = analisis.remate ? analisis.remate.split('\n') : [];
+            const remateData = analisis.remate ? analisis.remate.split('\n').filter(l => l.trim()) : [];
+            remateLines = [];
             document.getElementById('remateLinesContainer').innerHTML = '';
-            if (remateLines.length === 0) {
+            if (remateData.length === 0) {
                 addRemateLine();
             } else {
-                remateLines.forEach(line => addRemateLine(line));
+                remateData.forEach(line => addRemateLine(line));
             }
 
             document.getElementById('analisisElementoMecanico').value = analisis.elemento_mecanico || '';
@@ -775,7 +851,7 @@ async function editBibliotecaItem(id) {
             document.getElementById('analisisFormulacionJustificacion').value = analisis.formulacion_justificacion || '';
             document.getElementById('analisisNotas').value = analisis.notas || '';
 
-            showToast('Editando análisis - completa el wizard');
+            showToast('Editando análisis');
         }
     } catch (error) {
         showToast('Error al cargar análisis', 'error');
@@ -1527,6 +1603,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initBrainstorm();
     initBitacora();
     initAnalisisWizardForm();
+    initStepDots();
 
     // Logout button
     const logoutBtn = document.getElementById('logoutBtn');
@@ -1534,10 +1611,8 @@ document.addEventListener('DOMContentLoaded', () => {
         logoutBtn.addEventListener('click', logout);
     }
 
-    // Initialize wizard on first load if on análisis tab
-    if (document.querySelector('[data-tab="analisis"]').classList.contains('active')) {
-        initAnalisisWizard();
-    }
+    // Load categories for wizard
+    loadCategorias();
 
     console.log('Método Comedia - App initialized ✨');
 });

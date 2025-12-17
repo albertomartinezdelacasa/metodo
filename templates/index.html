@@ -52,19 +52,169 @@
             background: linear-gradient(135deg, #059669 0%, #10B981 100%);
         }
 
-        /* Wizard steps */
+        /* Full Screen Wizard */
+        .wizard-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 100;
+            background: linear-gradient(135deg, #1E40AF 0%, #4F46E5 50%, #7C3AED 100%);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .wizard-container.active {
+            display: flex;
+        }
+
+        .wizard-header {
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .wizard-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
         .wizard-step {
             display: none;
+            width: 100%;
+            max-width: 600px;
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .wizard-step.active {
             display: block;
-            animation: fadeIn 0.3s ease-in;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+        }
+
+        .wizard-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 32px 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .wizard-footer {
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Step indicators */
+        .step-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .step-dot.active {
+            background: white;
+            transform: scale(1.2);
+        }
+
+        .step-dot.completed {
+            background: #10B981;
+        }
+
+        /* Navigation buttons */
+        .wizard-nav-btn {
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .wizard-nav-btn.primary {
+            background: white;
+            color: #1E40AF;
+        }
+
+        .wizard-nav-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .wizard-nav-btn.secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .wizard-nav-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .wizard-nav-btn.success {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+
+        /* Close button */
+        .wizard-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .wizard-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
         }
 
         /* Line input container */
@@ -193,273 +343,281 @@
             </div>
         </div>
 
-        <!-- Tab: Análisis de Chistes (Wizard) -->
+        <!-- Tab: Análisis de Chistes (Landing) -->
         <div id="tab-analisis" class="tab-content">
-            <div class="glass rounded-2xl shadow-xl p-6">
-                <h2 class="text-3xl font-bold mb-2 text-blue-800">🔍 Análisis de Chistes</h2>
-                <p class="text-gray-600 mb-6">Estudia chistes de otros comediantes paso a paso</p>
+            <div class="glass rounded-2xl shadow-xl p-8 text-center">
+                <div class="max-w-2xl mx-auto">
+                    <div class="text-8xl mb-6">🔍</div>
+                    <h2 class="text-4xl font-bold mb-4 text-blue-800">Análisis de Chistes</h2>
+                    <p class="text-gray-600 text-lg mb-8">Estudia chistes de otros comediantes paso a paso. Descompón la estructura, identifica técnicas y aprende de los mejores.</p>
 
-                <!-- Progress Bar -->
-                <div class="mb-6">
-                    <div class="flex justify-between mb-2">
-                        <span class="text-sm font-semibold text-gray-600" id="stepLabel">Paso 1: Identificación</span>
-                        <span class="text-sm font-semibold text-gray-600" id="stepProgress">1/6</span>
+                    <div class="grid grid-cols-3 gap-4 mb-8">
+                        <div class="p-4 bg-blue-50 rounded-xl">
+                            <div class="text-3xl mb-2">📋</div>
+                            <p class="text-sm font-semibold text-blue-800">Premisa</p>
+                        </div>
+                        <div class="p-4 bg-orange-50 rounded-xl">
+                            <div class="text-3xl mb-2">💥</div>
+                            <p class="text-sm font-semibold text-orange-600">Ruptura</p>
+                        </div>
+                        <div class="p-4 bg-green-50 rounded-xl">
+                            <div class="text-3xl mb-2">🎯</div>
+                            <p class="text-sm font-semibold text-green-600">Remate</p>
+                        </div>
                     </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill" style="width: 16.66%"></div>
-                    </div>
+
+                    <button onclick="openAnalisisWizard()" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-10 py-4 rounded-xl font-bold text-xl hover:from-blue-700 hover:to-indigo-700 shadow-xl transform hover:scale-105 transition-all">
+                        Comenzar Análisis
+                    </button>
+
+                    <p class="text-gray-500 text-sm mt-6">6 pantallas · 3-5 minutos</p>
                 </div>
+            </div>
+        </div>
 
+        <!-- Full Screen Wizard -->
+        <div id="analisisWizard" class="wizard-container">
+            <button class="wizard-close" onclick="closeAnalisisWizard()">×</button>
+
+            <!-- Header -->
+            <div class="wizard-header relative">
+                <div class="text-center text-white">
+                    <p class="text-sm opacity-80" id="stepLabel">Paso 1 de 6</p>
+                    <h2 class="text-xl font-bold" id="stepTitle">Identificación</h2>
+                </div>
+                <div class="step-dots mt-4">
+                    <div class="step-dot active" data-step="1"></div>
+                    <div class="step-dot" data-step="2"></div>
+                    <div class="step-dot" data-step="3"></div>
+                    <div class="step-dot" data-step="4"></div>
+                    <div class="step-dot" data-step="5"></div>
+                    <div class="step-dot" data-step="6"></div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="wizard-content">
                 <form id="analisisWizardForm">
                     <!-- Step 1: Identificación -->
                     <div class="wizard-step active" data-step="1">
-                        <div class="text-center mb-6">
-                            <div class="text-6xl mb-4">🎭</div>
-                            <h3 class="text-2xl font-bold mb-2">Identificación del Chiste</h3>
-                            <p class="text-gray-600">¿De quién es este chiste?</p>
-                        </div>
-
-                        <div class="space-y-4 max-w-xl mx-auto">
-                            <div>
-                                <label class="block text-sm font-semibold mb-2">Título / Referencia *</label>
-                                <input type="text" id="analisisTitulo"
-                                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Ej: Chiste del restaurante" required>
+                        <div class="wizard-card">
+                            <div class="text-center mb-6">
+                                <div class="text-6xl mb-4">🎭</div>
+                                <h3 class="text-2xl font-bold mb-2 text-gray-800">¿De quién es este chiste?</h3>
+                                <p class="text-gray-500">Identifica el chiste y su autor</p>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-semibold mb-2">Comediante *</label>
-                                <input type="text" id="analisisComediante"
-                                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Ej: George Carlin" required>
-                            </div>
-                        </div>
+                            <div class="space-y-5">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2 text-gray-700">Título / Referencia *</label>
+                                    <input type="text" id="analisisTitulo"
+                                        class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
+                                        placeholder="Ej: Chiste del restaurante" required>
+                                </div>
 
-                        <div class="flex justify-end mt-6">
-                            <button type="button" class="btn-primary" onclick="nextStep()">
-                                Siguiente →
-                            </button>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2 text-gray-700">Comediante *</label>
+                                    <input type="text" id="analisisComediante"
+                                        class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
+                                        placeholder="Ej: George Carlin" required>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Step 2: Premisa -->
                     <div class="wizard-step" data-step="2">
-                        <div class="text-center mb-6">
-                            <div class="text-6xl mb-4">📋</div>
-                            <h3 class="text-2xl font-bold mb-2 text-blue-800">Premisa (Setup)</h3>
-                            <p class="text-gray-600">Escribe cada línea de la premisa por separado</p>
-                        </div>
+                        <div class="wizard-card">
+                            <div class="text-center mb-6">
+                                <div class="text-6xl mb-4">📋</div>
+                                <h3 class="text-2xl font-bold mb-2 text-blue-800">Premisa (Setup)</h3>
+                                <p class="text-gray-500">La preparación del chiste</p>
+                            </div>
 
-                        <div class="max-w-2xl mx-auto space-y-4">
-                            <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
-                                <h4 class="font-bold mb-4 text-blue-800">Líneas de la Premisa</h4>
-                                <div id="premisaLinesContainer">
-                                    <!-- Dynamic lines will be added here -->
+                            <div class="space-y-4">
+                                <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-5">
+                                    <label class="block text-sm font-semibold mb-3 text-blue-800">Líneas de la Premisa</label>
+                                    <div id="premisaLinesContainer">
+                                        <!-- Dynamic lines -->
+                                    </div>
+                                    <button type="button" class="btn-add-line mt-3" onclick="addPremisaLine()">
+                                        + Añadir línea
+                                    </button>
                                 </div>
-                                <button type="button" class="btn-add-line mt-3" onclick="addPremisaLine()">
-                                    + Añadir línea
-                                </button>
-                            </div>
 
-                            <div>
-                                <label class="block text-sm font-semibold mb-2">Elemento Mecánico</label>
-                                <select id="analisisElementoMecanico"
-                                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 dropdown-editable">
-                                    <option value="">Seleccionar...</option>
-                                </select>
-                                <p class="text-xs text-gray-500 mt-1">¿Qué elemento específico hace funcionar la premisa?</p>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2 text-gray-700">Elemento Mecánico</label>
+                                    <select id="analisisElementoMecanico"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Seleccionar...</option>
+                                    </select>
+                                    <p class="text-xs text-gray-500 mt-2">¿Qué elemento hace funcionar la premisa?</p>
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="flex justify-between mt-6">
-                            <button type="button" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold" onclick="prevStep()">
-                                ← Atrás
-                            </button>
-                            <button type="button" class="btn-primary" onclick="nextStep()">
-                                Siguiente →
-                            </button>
                         </div>
                     </div>
 
                     <!-- Step 3: Ruptura -->
                     <div class="wizard-step" data-step="3">
-                        <div class="text-center mb-6">
-                            <div class="text-6xl mb-4">💥</div>
-                            <h3 class="text-2xl font-bold mb-2 text-orange-600">Ruptura</h3>
-                            <p class="text-gray-600">El momento donde se rompe la expectativa</p>
-                        </div>
+                        <div class="wizard-card">
+                            <div class="text-center mb-6">
+                                <div class="text-6xl mb-4">💥</div>
+                                <h3 class="text-2xl font-bold mb-2 text-orange-600">Ruptura</h3>
+                                <p class="text-gray-500">El momento donde se rompe la expectativa</p>
+                            </div>
 
-                        <div class="max-w-2xl mx-auto">
-                            <div class="bg-orange-50 border-2 border-orange-200 rounded-xl p-6">
-                                <h4 class="font-bold mb-4 text-orange-800">Líneas de la Ruptura</h4>
+                            <div class="bg-orange-50 border-2 border-orange-200 rounded-xl p-5">
+                                <label class="block text-sm font-semibold mb-3 text-orange-800">Líneas de la Ruptura</label>
                                 <div id="rupturaLinesContainer">
-                                    <!-- Dynamic lines will be added here -->
+                                    <!-- Dynamic lines -->
                                 </div>
                                 <button type="button" class="btn-add-line mt-3" onclick="addRupturaLine()">
                                     + Añadir línea
                                 </button>
                             </div>
                         </div>
-
-                        <div class="flex justify-between mt-6">
-                            <button type="button" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold" onclick="prevStep()">
-                                ← Atrás
-                            </button>
-                            <button type="button" class="btn-primary" onclick="nextStep()">
-                                Siguiente →
-                            </button>
-                        </div>
                     </div>
 
                     <!-- Step 4: Remate -->
                     <div class="wizard-step" data-step="4">
-                        <div class="text-center mb-6">
-                            <div class="text-6xl mb-4">🎯</div>
-                            <h3 class="text-2xl font-bold mb-2 text-emerald-600">Remate (Punchline)</h3>
-                            <p class="text-gray-600">El cierre que genera la risa</p>
-                        </div>
+                        <div class="wizard-card">
+                            <div class="text-center mb-6">
+                                <div class="text-6xl mb-4">🎯</div>
+                                <h3 class="text-2xl font-bold mb-2 text-emerald-600">Remate (Punchline)</h3>
+                                <p class="text-gray-500">El cierre que genera la risa</p>
+                            </div>
 
-                        <div class="max-w-2xl mx-auto">
-                            <div class="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-6">
-                                <h4 class="font-bold mb-4 text-emerald-800">Líneas del Remate</h4>
+                            <div class="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-5">
+                                <label class="block text-sm font-semibold mb-3 text-emerald-800">Líneas del Remate</label>
                                 <div id="remateLinesContainer">
-                                    <!-- Dynamic lines will be added here -->
+                                    <!-- Dynamic lines -->
                                 </div>
                                 <button type="button" class="btn-add-line mt-3" onclick="addRemateLine()">
                                     + Añadir línea
                                 </button>
                             </div>
                         </div>
-
-                        <div class="flex justify-between mt-6">
-                            <button type="button" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold" onclick="prevStep()">
-                                ← Atrás
-                            </button>
-                            <button type="button" class="btn-primary" onclick="nextStep()">
-                                Siguiente →
-                            </button>
-                        </div>
                     </div>
 
                     <!-- Step 5: Perspectiva y Concepto -->
                     <div class="wizard-step" data-step="5">
-                        <div class="text-center mb-6">
-                            <div class="text-6xl mb-4">👁️</div>
-                            <h3 class="text-2xl font-bold mb-2 text-indigo-700">Perspectiva y Concepto</h3>
-                            <p class="text-gray-600">El punto de vista y la idea central</p>
-                        </div>
-
-                        <div class="max-w-2xl mx-auto space-y-6">
-                            <div class="bg-indigo-50 border-2 border-indigo-200 rounded-xl p-6">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <div>
-                                        <label class="block text-sm font-semibold mb-2">Categoría de Perspectiva</label>
-                                        <select id="analisisPerspectivaCategoria"
-                                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-indigo-500 dropdown-editable">
-                                            <option value="">Seleccionar...</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold mb-2">Actitud</label>
-                                        <select id="analisisActitud"
-                                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-indigo-500 dropdown-editable">
-                                            <option value="">Seleccionar...</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-semibold mb-2">Justificación de Perspectiva</label>
-                                    <textarea id="analisisPerspectivaJustificacion" rows="2"
-                                        class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                                        placeholder="¿Por qué esta perspectiva funciona?"></textarea>
-                                </div>
+                        <div class="wizard-card">
+                            <div class="text-center mb-6">
+                                <div class="text-6xl mb-4">👁️</div>
+                                <h3 class="text-2xl font-bold mb-2 text-indigo-700">Perspectiva y Concepto</h3>
+                                <p class="text-gray-500">El punto de vista y la idea central</p>
                             </div>
 
-                            <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6">
-                                <h4 class="font-bold mb-4 text-purple-800">Concepto</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-semibold mb-2">Concepto Principal</label>
-                                        <input type="text" id="analisisConcepto"
-                                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-purple-500"
-                                            placeholder="Ej: Incomodidad social">
+                            <div class="space-y-5">
+                                <div class="bg-indigo-50 border-2 border-indigo-200 rounded-xl p-5">
+                                    <h4 class="font-bold mb-4 text-indigo-800">Perspectiva</h4>
+                                    <div class="grid grid-cols-2 gap-3 mb-4">
+                                        <div>
+                                            <label class="block text-xs font-semibold mb-2">Categoría</label>
+                                            <select id="analisisPerspectivaCategoria"
+                                                class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-sm">
+                                                <option value="">Seleccionar...</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold mb-2">Actitud</label>
+                                            <select id="analisisActitud"
+                                                class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-sm">
+                                                <option value="">Seleccionar...</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-semibold mb-2">Categoría de Concepto</label>
-                                        <select id="analisisConceptoCategoria"
-                                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-purple-500 dropdown-editable">
-                                            <option value="">Seleccionar...</option>
-                                        </select>
+                                        <label class="block text-xs font-semibold mb-2">Justificación</label>
+                                        <textarea id="analisisPerspectivaJustificacion" rows="2"
+                                            class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-sm"
+                                            placeholder="¿Por qué funciona?"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-5">
+                                    <h4 class="font-bold mb-4 text-purple-800">Concepto</h4>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-xs font-semibold mb-2">Concepto Principal</label>
+                                            <input type="text" id="analisisConcepto"
+                                                class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-sm"
+                                                placeholder="Ej: Incomodidad social">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold mb-2">Categoría</label>
+                                            <select id="analisisConceptoCategoria"
+                                                class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-sm">
+                                                <option value="">Seleccionar...</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="flex justify-between mt-6">
-                            <button type="button" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold" onclick="prevStep()">
-                                ← Atrás
-                            </button>
-                            <button type="button" class="btn-primary" onclick="nextStep()">
-                                Siguiente →
-                            </button>
                         </div>
                     </div>
 
                     <!-- Step 6: Formulación y Notas -->
                     <div class="wizard-step" data-step="6">
-                        <div class="text-center mb-6">
-                            <div class="text-6xl mb-4">📝</div>
-                            <h3 class="text-2xl font-bold mb-2 text-purple-700">Formulación y Notas</h3>
-                            <p class="text-gray-600">Detalles finales del análisis</p>
-                        </div>
-
-                        <div class="max-w-2xl mx-auto space-y-6">
-                            <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6">
-                                <h4 class="font-bold mb-4 text-yellow-800">🗺️ Desarrollo de la Idea</h4>
-                                <textarea id="analisisDesarrolloIdea" rows="4"
-                                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-yellow-500"
-                                    placeholder="Describe el proceso creativo. ¿Cómo conecta los conceptos?"></textarea>
+                        <div class="wizard-card">
+                            <div class="text-center mb-6">
+                                <div class="text-6xl mb-4">📝</div>
+                                <h3 class="text-2xl font-bold mb-2 text-purple-700">Formulación y Notas</h3>
+                                <p class="text-gray-500">Detalles finales del análisis</p>
                             </div>
 
-                            <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6">
-                                <h4 class="font-bold mb-4 text-purple-800">📝 Formulación</h4>
-                                <div class="space-y-3">
-                                    <div>
-                                        <label class="block text-sm font-semibold mb-2">Categoría de Formulación</label>
-                                        <select id="analisisFormulacionCategoria"
-                                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-purple-500 dropdown-editable">
-                                            <option value="">Seleccionar...</option>
-                                        </select>
-                                        <p class="text-xs text-gray-500 mt-1">¿Cómo está construido? (directa, pregunta, historia, etc.)</p>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold mb-2">Justificación</label>
-                                        <textarea id="analisisFormulacionJustificacion" rows="2"
-                                            class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-purple-500"
-                                            placeholder="¿Por qué esta formulación es efectiva?"></textarea>
+                            <div class="space-y-5">
+                                <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-5">
+                                    <label class="block text-sm font-semibold mb-2 text-yellow-800">Desarrollo de la Idea</label>
+                                    <textarea id="analisisDesarrolloIdea" rows="3"
+                                        class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-sm"
+                                        placeholder="¿Cómo conecta los conceptos?"></textarea>
+                                </div>
+
+                                <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-5">
+                                    <h4 class="font-bold mb-3 text-purple-800">Formulación</h4>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="block text-xs font-semibold mb-2">Categoría</label>
+                                            <select id="analisisFormulacionCategoria"
+                                                class="w-full px-3 py-3 border-2 border-gray-200 rounded-lg text-sm">
+                                                <option value="">Seleccionar...</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold mb-2">Justificación</label>
+                                            <textarea id="analisisFormulacionJustificacion" rows="2"
+                                                class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-sm"
+                                                placeholder="¿Por qué es efectiva?"></textarea>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div>
-                                <label class="block text-sm font-semibold mb-2">Notas Adicionales</label>
-                                <textarea id="analisisNotas" rows="3"
-                                    class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-400"
-                                    placeholder="Observaciones, aprendizajes, ideas derivadas..."></textarea>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2 text-gray-700">Notas Adicionales</label>
+                                    <textarea id="analisisNotas" rows="3"
+                                        class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-sm"
+                                        placeholder="Observaciones, aprendizajes..."></textarea>
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="flex justify-between mt-6">
-                            <button type="button" class="px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold" onclick="prevStep()">
-                                ← Atrás
-                            </button>
-                            <button type="submit" class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 shadow-lg">
-                                💾 Guardar Análisis
-                            </button>
                         </div>
                     </div>
                 </form>
+            </div>
+
+            <!-- Footer Navigation -->
+            <div class="wizard-footer">
+                <div class="flex justify-between items-center max-w-lg mx-auto">
+                    <button type="button" id="wizardPrevBtn" class="wizard-nav-btn secondary" onclick="prevStep()" style="visibility: hidden;">
+                        ← Atrás
+                    </button>
+                    <button type="button" id="wizardNextBtn" class="wizard-nav-btn primary" onclick="nextStep()">
+                        Siguiente →
+                    </button>
+                    <button type="button" id="wizardSaveBtn" class="wizard-nav-btn success hidden" onclick="submitWizardForm()">
+                        Guardar
+                    </button>
+                </div>
             </div>
         </div>
 

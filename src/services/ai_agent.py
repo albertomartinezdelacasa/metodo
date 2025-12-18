@@ -1,7 +1,6 @@
 """
-Agente de IA para análisis de chistes usando Google Gemini
+Agente de IA para análisis de chistes - Soporta Groq y Gemini
 """
-import google.generativeai as genai
 from src.config import config
 from src.utils.prompts import (
     ANALYZE_JOKE_PROMPT,
@@ -15,35 +14,85 @@ from src.utils.prompts import (
 )
 import json
 import logging
+import requests
 from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
 
 class ComedyAIAgent:
-    """Agente de IA para análisis y mejora de chistes usando Google Gemini"""
+    """Agente de IA para análisis y mejora de chistes - Soporta múltiples proveedores"""
 
     def __init__(self):
-        """Inicializa el agente de IA con Google Gemini"""
-        if not config.GEMINI_API_KEY:
-            raise ValueError("GEMINI_API_KEY not configured")
+        """Inicializa el agente de IA con el proveedor configurado"""
+        self.provider = config.AI_PROVIDER
 
-        genai.configure(api_key=config.GEMINI_API_KEY)
+        if self.provider == 'groq':
+            if not config.GROQ_API_KEY:
+                raise ValueError("GROQ_API_KEY not configured")
+            self.api_key = config.GROQ_API_KEY
+            self.model = config.GROQ_MODEL
+            self.api_url = "https://api.groq.com/openai/v1/chat/completions"
+            logger.info(f"AI Agent initialized with Groq model: {self.model}")
 
-        # Configuración del modelo
-        self.generation_config = {
-            "temperature": 0.9,  # Creatividad alta para comedia
-            "top_p": 0.95,
-            "top_k": 40,
-            "max_output_tokens": 2048,
+        elif self.provider == 'gemini':
+            if not config.GEMINI_API_KEY:
+                raise ValueError("GEMINI_API_KEY not configured")
+            import google.generativeai as genai
+            genai.configure(api_key=config.GEMINI_API_KEY)
+            self.model = genai.GenerativeModel(
+                model_name=config.GEMINI_MODEL,
+                generation_config={
+                    "temperature": 0.9,
+                    "top_p": 0.95,
+                    "top_k": 40,
+                    "max_output_tokens": 2048,
+                }
+            )
+            logger.info(f"AI Agent initialized with Gemini model: {config.GEMINI_MODEL}")
+        else:
+            raise ValueError(f"Unknown AI provider: {self.provider}")
+
+    def _call_groq(self, prompt: str) -> str:
+        """Llama a la API de Groq"""
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
         }
 
-        self.model = genai.GenerativeModel(
-            model_name=config.GEMINI_MODEL,
-            generation_config=self.generation_config,
-        )
+        data = {
+            "model": self.model,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "Eres un experto en comedia stand-up y análisis humorístico. Responde siempre en JSON válido."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "temperature": 0.9,
+            "max_tokens": 2048
+        }
 
-        logger.info(f"AI Agent initialized with model: {config.GEMINI_MODEL}")
+        response = requests.post(self.api_url, headers=headers, json=data, timeout=60)
+        response.raise_for_status()
+
+        result = response.json()
+        return result['choices'][0]['message']['content']
+
+    def _call_gemini(self, prompt: str) -> str:
+        """Llama a la API de Gemini"""
+        response = self.model.generate_content(prompt)
+        return response.text
+
+    def _generate(self, prompt: str) -> str:
+        """Genera respuesta usando el proveedor configurado"""
+        if self.provider == 'groq':
+            return self._call_groq(prompt)
+        else:
+            return self._call_gemini(prompt)
 
     def _parse_json_response(self, response_text: str) -> Dict:
         """Parsea la respuesta JSON del modelo"""
@@ -66,19 +115,13 @@ class ComedyAIAgent:
     def analyze_joke(self, joke_text: str) -> Dict:
         """
         Analiza la estructura y técnicas de un chiste
-
-        Args:
-            joke_text: Texto del chiste a analizar
-
-        Returns:
-            Dict con el análisis estructurado
         """
         try:
             prompt = ANALYZE_JOKE_PROMPT.format(joke_text=joke_text)
-            response = self.model.generate_content(prompt)
+            response = self._generate(prompt)
 
-            analysis = self._parse_json_response(response.text)
-            logger.info(f"Joke analyzed successfully. Score: {analysis['scores']['general']}")
+            analysis = self._parse_json_response(response)
+            logger.info(f"Joke analyzed successfully. Score: {analysis.get('scores', {}).get('general', 'N/A')}")
 
             return analysis
 
@@ -89,20 +132,11 @@ class ComedyAIAgent:
     def suggest_improvements(self, joke_text: str, analysis: Optional[Dict] = None) -> Dict:
         """
         Sugiere mejoras para un chiste
-
-        Args:
-            joke_text: Texto del chiste
-            analysis: Análisis previo del chiste (opcional)
-
-        Returns:
-            Dict con versiones mejoradas
         """
         try:
-            # Si no hay análisis, generar uno primero
             if not analysis:
                 analysis = self.analyze_joke(joke_text)
 
-            # Crear resumen del análisis
             analysis_summary = f"""
 Puntos fuertes: {', '.join(analysis.get('puntos_fuertes', []))}
 Puntos débiles: {', '.join(analysis.get('puntos_debiles', []))}
@@ -115,8 +149,8 @@ Scores: {json.dumps(analysis.get('scores', {}))}
                 analysis_summary=analysis_summary
             )
 
-            response = self.model.generate_content(prompt)
-            improvements = self._parse_json_response(response.text)
+            response = self._generate(prompt)
+            improvements = self._parse_json_response(response)
 
             logger.info("Improvements suggested successfully")
             return improvements
@@ -128,13 +162,6 @@ Scores: {json.dumps(analysis.get('scores', {}))}
     def generate_variations(self, joke_text: str, num_variations: int = 3) -> List[Dict]:
         """
         Genera variaciones del chiste
-
-        Args:
-            joke_text: Texto del chiste original
-            num_variations: Número de variaciones a generar
-
-        Returns:
-            Lista de variaciones
         """
         try:
             prompt = GENERATE_VARIATIONS_PROMPT.format(
@@ -142,8 +169,8 @@ Scores: {json.dumps(analysis.get('scores', {}))}
                 num_variations=num_variations
             )
 
-            response = self.model.generate_content(prompt)
-            result = self._parse_json_response(response.text)
+            response = self._generate(prompt)
+            result = self._parse_json_response(response)
 
             variations = result.get('variaciones', [])
             logger.info(f"Generated {len(variations)} variations")
@@ -158,14 +185,6 @@ Scores: {json.dumps(analysis.get('scores', {}))}
                         num_ideas: int = 5) -> List[Dict]:
         """
         Genera ideas de chistes sobre un tema
-
-        Args:
-            topic: Tema sobre el que generar ideas
-            style: Estilo de humor preferido
-            num_ideas: Número de ideas a generar
-
-        Returns:
-            Lista de ideas de chistes
         """
         try:
             prompt = BRAINSTORM_IDEAS_PROMPT.format(
@@ -174,8 +193,8 @@ Scores: {json.dumps(analysis.get('scores', {}))}
                 num_ideas=num_ideas
             )
 
-            response = self.model.generate_content(prompt)
-            result = self._parse_json_response(response.text)
+            response = self._generate(prompt)
+            result = self._parse_json_response(response)
 
             ideas = result.get('ideas', [])
             logger.info(f"Generated {len(ideas)} ideas about: {topic}")
@@ -189,15 +208,8 @@ Scores: {json.dumps(analysis.get('scores', {}))}
     def identify_patterns(self, jokes: List[Dict]) -> Dict:
         """
         Identifica patrones en una colección de chistes
-
-        Args:
-            jokes: Lista de diccionarios con chistes (debe tener campo 'contenido')
-
-        Returns:
-            Dict con patrones identificados
         """
         try:
-            # Construir texto con todos los chistes
             jokes_text = "\n\n---\n\n".join([
                 f"CHISTE {i+1}:\n{joke.get('contenido', joke.get('texto', ''))}"
                 for i, joke in enumerate(jokes)
@@ -208,8 +220,8 @@ Scores: {json.dumps(analysis.get('scores', {}))}
                 jokes_text=jokes_text
             )
 
-            response = self.model.generate_content(prompt)
-            patterns = self._parse_json_response(response.text)
+            response = self._generate(prompt)
+            patterns = self._parse_json_response(response)
 
             logger.info(f"Patterns identified from {len(jokes)} jokes")
             return patterns
@@ -221,18 +233,12 @@ Scores: {json.dumps(analysis.get('scores', {}))}
     def suggest_tags(self, joke_text: str) -> Dict:
         """
         Sugiere tags para categorizar un chiste
-
-        Args:
-            joke_text: Texto del chiste
-
-        Returns:
-            Dict con tags sugeridos por categoría
         """
         try:
             prompt = TAG_SUGGESTION_PROMPT.format(joke_text=joke_text)
-            response = self.model.generate_content(prompt)
+            response = self._generate(prompt)
 
-            tags = self._parse_json_response(response.text)
+            tags = self._parse_json_response(response)
             logger.info("Tags suggested successfully")
 
             return tags
@@ -244,24 +250,12 @@ Scores: {json.dumps(analysis.get('scores', {}))}
     def analyze_concepts(self, joke_text: str) -> Dict:
         """
         Analiza en profundidad los conceptos del chiste
-
-        Args:
-            joke_text: Texto del chiste a analizar
-
-        Returns:
-            Dict con análisis conceptual detallado:
-            - concepto_principal: El concepto central
-            - tipo_concepto: simple/compuesto/concreto/abstracto
-            - explicacion_tipo: Por qué es ese tipo
-            - mapa_conceptos: Mapa de asociaciones conceptuales
-            - ejemplos_similares: Ejemplos de estructura similar
-            - potencial_expansion: Cómo explotar más el concepto
         """
         try:
             prompt = ANALYZE_CONCEPTS_PROMPT.format(joke_text=joke_text)
-            response = self.model.generate_content(prompt)
+            response = self._generate(prompt)
 
-            concepts = self._parse_json_response(response.text)
+            concepts = self._parse_json_response(response)
             logger.info(f"Concepts analyzed. Type: {concepts.get('tipo_concepto', 'unknown')}")
 
             return concepts
@@ -273,27 +267,12 @@ Scores: {json.dumps(analysis.get('scores', {}))}
     def analyze_rupture(self, joke_text: str) -> Dict:
         """
         Analiza la mecánica de ruptura humorística del chiste
-
-        Args:
-            joke_text: Texto del chiste a analizar
-
-        Returns:
-            Dict con análisis de la ruptura:
-            - tipo_ruptura: Tipo principal de ruptura
-            - subtipo_ruptura: Subtipo específico
-            - explicacion_ruptura: Cómo funciona el mecanismo
-            - expectativa_creada: Qué expectativa crea el setup
-            - momento_ruptura: Punto exacto de la ruptura
-            - efecto_logrado: Efecto humorístico conseguido
-            - intensidad_ruptura: suave/moderada/fuerte
-            - mejoras_posibles: Cómo intensificar
-            - ejemplos_similares: Ejemplos del mismo tipo
         """
         try:
             prompt = ANALYZE_RUPTURE_PROMPT.format(joke_text=joke_text)
-            response = self.model.generate_content(prompt)
+            response = self._generate(prompt)
 
-            rupture = self._parse_json_response(response.text)
+            rupture = self._parse_json_response(response)
             logger.info(f"Rupture analyzed. Type: {rupture.get('tipo_ruptura', 'unknown')}")
 
             return rupture
@@ -304,4 +283,12 @@ Scores: {json.dumps(analysis.get('scores', {}))}
 
 
 # Instancia global del agente
-ai_agent = ComedyAIAgent() if config.GEMINI_API_KEY else None
+def get_ai_agent():
+    """Obtiene instancia del agente AI si está configurado"""
+    try:
+        return ComedyAIAgent()
+    except ValueError as e:
+        logger.warning(f"AI Agent not available: {e}")
+        return None
+
+ai_agent = get_ai_agent()

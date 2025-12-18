@@ -360,32 +360,59 @@ function populateLineSelectionCheckboxes(containerId, type) {
         return;
     }
 
+    // Define color classes explicitly for Tailwind JIT
+    const colorStyles = {
+        premisa: {
+            borderActive: 'border-blue-500',
+            bgActive: 'bg-blue-100',
+            checkboxColor: 'accent-blue-600'
+        },
+        ruptura: {
+            borderActive: 'border-orange-500',
+            bgActive: 'bg-orange-100',
+            checkboxColor: 'accent-orange-600'
+        },
+        remate: {
+            borderActive: 'border-emerald-500',
+            bgActive: 'bg-emerald-100',
+            checkboxColor: 'accent-emerald-600'
+        }
+    };
+
+    const colors = colorStyles[type];
+
     // Get the appropriate selection array
     let selectedArray;
-    let colorClass;
     switch (type) {
         case 'premisa':
             selectedArray = selectedPremisa;
-            colorClass = 'blue';
             break;
         case 'ruptura':
             selectedArray = selectedRuptura;
-            colorClass = 'orange';
             break;
         case 'remate':
             selectedArray = selectedRemate;
-            colorClass = 'emerald';
             break;
     }
 
     validLines.forEach(item => {
         const isChecked = selectedArray.includes(item.index);
         const checkboxDiv = document.createElement('div');
-        checkboxDiv.className = `line-checkbox-item p-3 rounded-lg border-2 ${isChecked ? `border-${colorClass}-500 bg-${colorClass}-100` : 'border-gray-200 bg-white'} cursor-pointer transition-all`;
+
+        // Set base classes
+        checkboxDiv.className = 'line-checkbox-item p-3 rounded-lg border-2 cursor-pointer transition-all';
+
+        // Add color classes based on checked state
+        if (isChecked) {
+            checkboxDiv.classList.add(colors.borderActive, colors.bgActive);
+        } else {
+            checkboxDiv.classList.add('border-gray-200', 'bg-white');
+        }
+
         checkboxDiv.innerHTML = `
             <label class="flex items-start gap-3 cursor-pointer">
                 <input type="checkbox"
-                    class="mt-1 w-5 h-5 rounded text-${colorClass}-600 focus:ring-${colorClass}-500"
+                    class="mt-1 w-5 h-5 rounded ${colors.checkboxColor}"
                     data-line-index="${item.index}"
                     data-type="${type}"
                     ${isChecked ? 'checked' : ''}>
@@ -401,6 +428,7 @@ function populateLineSelectionCheckboxes(containerId, type) {
         checkbox.addEventListener('change', (e) => {
             const lineIndex = parseInt(e.target.dataset.lineIndex);
             const lineType = e.target.dataset.type;
+            const typeColors = colorStyles[lineType];
 
             if (e.target.checked) {
                 // Add to selection
@@ -412,7 +440,7 @@ function populateLineSelectionCheckboxes(containerId, type) {
                     selectedRemate.push(lineIndex);
                 }
                 checkboxDiv.classList.remove('border-gray-200', 'bg-white');
-                checkboxDiv.classList.add(`border-${colorClass}-500`, `bg-${colorClass}-100`);
+                checkboxDiv.classList.add(typeColors.borderActive, typeColors.bgActive);
             } else {
                 // Remove from selection
                 if (lineType === 'premisa') {
@@ -422,8 +450,8 @@ function populateLineSelectionCheckboxes(containerId, type) {
                 } else if (lineType === 'remate') {
                     selectedRemate = selectedRemate.filter(i => i !== lineIndex);
                 }
+                checkboxDiv.classList.remove(typeColors.borderActive, typeColors.bgActive);
                 checkboxDiv.classList.add('border-gray-200', 'bg-white');
-                checkboxDiv.classList.remove(`border-${colorClass}-500`, `bg-${colorClass}-100`);
             }
         });
 
